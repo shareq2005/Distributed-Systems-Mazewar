@@ -22,7 +22,7 @@ public class MazewarServer {
 		}
 
 		//first wait for 4 clients to connect to the server
-		while (count < 4) {
+		while (listening) {
 
 			Socket socket;
 			socket = serverSocket.accept();

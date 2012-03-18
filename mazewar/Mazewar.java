@@ -324,22 +324,16 @@ public class Mazewar extends JFrame {
 
 		System.out.println("AFTER MAZE");
 
-		//Enqueueing thread starts here
-		new ClientEnqueueHandler(in_from_server,gui_client_id).start();
-
-		MazewarPacket packet_from_server;
-		System.out.println("AFTER new try");
-
+		//Start the thread which starts the mini-server for receiver connections
+		new ServerSocketThread(client_port,gui_client_id).start();
+		
 		//pass the output stream
 		maze.pass_output_stream(out_to_server);
 		maze.pass_local_client_id(gui_client_id);
 
 		System.out.println("GUI CLIENT ID IS "+gui_client_id);
 		List<MazewarPacket> client_queue_list = ClientQueue.get_event_queue(gui_client_id);
-		int local_client_id = client_id;
-
 		boolean listening = true;
-		int count = 0;
 		while(listening) {
 
 			if (client_queue_list.size() > 0) 
@@ -382,17 +376,14 @@ public class Mazewar extends JFrame {
 						temp_guy.fire();
 					};
 
-
 					//remove the first element in the client queue
 					ClientQueue.remove_element(gui_client_id);
-
 				}
 				else
 				{
 					System.out.println("SHOULD NEVER BE HERE");
 				}
 			};
-
 
 			//get the client queue
 			client_queue_list = ClientQueue.get_event_queue(gui_client_id);
@@ -427,7 +418,9 @@ public class Mazewar extends JFrame {
 			System.err.println("ERROR: Invalid arguments!");
 			System.exit(-1);
 		}
-
+		
+		//Mazewar instance
 		new Mazewar(server_hostname,server_port,local_port,LocalIP);
+		
 	}
 }

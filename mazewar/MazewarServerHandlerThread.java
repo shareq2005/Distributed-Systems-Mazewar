@@ -9,7 +9,6 @@ public class MazewarServerHandlerThread extends Thread {
 	private Socket socket = null;
 	private Maze maze_server = null;
 	private static int sequence_Num = 0;
-	// Can declare Server Queue somewhere here
 
 	public MazewarServerHandlerThread(Socket socket) {
 		super("MazewarServerHandlerThread");
