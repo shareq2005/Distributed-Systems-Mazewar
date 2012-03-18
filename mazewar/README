@@ -1,0 +1,23 @@
+Name : Syed Shareq Rabbani
+Student Number : 996648338
+
+Name : Gautham Krishnakumar
+Student Number : 997391344
+
+
+To compile the project use the Makefile. If the Makefile doesn't work, use Eclipse.
+
+First turn the server on. The server waits for 4 clients to connect before sending an acknowledgement 
+which makes the Clients start the game.
+
+The direction of the clients initially and after every respawn has been hard coded to South.
+This is for simplicity. Rest of the game play is unaffected.
+
+To run the MazewarServer:
+	
+	java MazewarServer <port_number>
+	
+To run the Mazewar Client:
+
+	java Mazewar <hostname> <port_number>
+		
