@@ -58,5 +58,11 @@ public class MazewarPacket implements Serializable {
 	 * WEST - 3
 	 */
 	public int direction;
+	
+	/* The port from which the client will accept connections from other clients*/
+	public int client_port;
+	
+	/* Hostname/IP of the client which will accept connections from other clients*/
+	public String client_host;
 
 }

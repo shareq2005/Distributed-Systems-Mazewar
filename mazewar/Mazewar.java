@@ -128,7 +128,7 @@ public class Mazewar extends JFrame {
 	 * @throws ClassNotFoundException 
 	 * @throws IOException 
 	 */
-	public Mazewar(String hostname, int port) {
+	public Mazewar(String hostname, int port, int client_port, String client_host) {
 		super("ECE419 Mazewar");
 		consolePrintLn("ECE419 Mazewar started!");
 
@@ -147,9 +147,6 @@ public class Mazewar extends JFrame {
 		if((name == null) || (name.length() == 0)) {
 			Mazewar.quit();
 		}		
-
-		System.out.println("HOSTNAME IS "+hostname);
-		System.out.println("PORT is "+port);
 
 		// You may want to put your network initialization code somewhere in here.
 		//Initialize the socket, the inputstream and the output stream
@@ -175,6 +172,10 @@ public class Mazewar extends JFrame {
 			registration_packet.mazeHeight = mazeHeight;
 			registration_packet.mazeWidth = mazeWidth;
 
+			//Attach the client host and port to the registration packet
+			registration_packet.client_host = client_host;
+			registration_packet.client_port = client_port;
+			
 			//Send out a registration packet to the server
 			out_to_server.writeObject(registration_packet);
 			System.out.println("IN TRY BLOCK 2");
@@ -225,7 +226,6 @@ public class Mazewar extends JFrame {
 					client_id = packet_from_server.client_id;
 					System.out.println("THE CLIENT ID IS "+client_id);
 
-
 					//Add some statements later to check that the name received is 
 					//the same as the name sent
 					System.out.println("THE GeneraTed X is "+packet_from_server.x_coordinate);
@@ -239,12 +239,11 @@ public class Mazewar extends JFrame {
 
 					maze.addClient(temp,X_COORDINATE,Y_COORDINATE);
 					client_map.put(client_id, temp);
+					
 					//break out of the loop if all the clients get connected
 					player_counter++;
 					if(player_counter == 4)
 						break;;
-
-
 				}
 				else
 				{	
@@ -253,7 +252,6 @@ public class Mazewar extends JFrame {
 					System.exit(-1);
 				}
 			}
-
 		} catch (UnknownHostException e) {
 			System.err.println("ERROR: Don't know where to connect!!");
 			System.exit(1);
@@ -411,17 +409,25 @@ public class Mazewar extends JFrame {
 	public static void main(String args[]) throws IOException, ClassNotFoundException {
 
 		/* variables for hostname/port */
-		String hostname = "localhost";
-		int port = 4444;
-
-		if(args.length == 2 ) {
-			hostname = args[0];
-			port = Integer.parseInt(args[1]);
+		String server_hostname = "localhost";
+		int server_port = 4444;
+		
+		/* variable for the port the local server will run on*/
+		int local_port = 1111;
+		
+		/*Get the IP address of the local client */
+		InetAddress localIP = InetAddress.getLocalHost();
+		String LocalIP = localIP.getHostAddress();
+		
+		if(args.length == 3) {
+			server_hostname = args[0];
+			server_port = Integer.parseInt(args[1]);
+			local_port = Integer.parseInt(args[2]);
 		} else {
 			System.err.println("ERROR: Invalid arguments!");
 			System.exit(-1);
 		}
 
-		new Mazewar(hostname,port);
+		new Mazewar(server_hostname,server_port,local_port,LocalIP);
 	}
 }
