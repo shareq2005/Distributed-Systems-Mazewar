@@ -6,9 +6,13 @@ public class ServerSocketThread extends Thread{
 	int local_port;
 	int gui_client_id;
 	
-	public ServerSocketThread(int local_port, int gui_client_id)
+	public ServerSocketThread(int local_port)
 	{
 		this.local_port = local_port;
+	}
+	
+	public void setGuiClientID(int gui_client_id)
+	{
 		this.gui_client_id = gui_client_id;
 	}
 

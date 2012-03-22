@@ -29,6 +29,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Vector;  
 import java.util.Map;
@@ -57,7 +58,8 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 	 * @param seed Initial seed for the random number generator.
 	 */
 	private ObjectOutputStream out_to_server = null;
-
+	private ArrayList<ObjectOutputStream> stream_list = null;
+	
 	private int local_client_id;
 
 	public void pass_local_client_id(int client_id) {
@@ -66,6 +68,10 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 
 	public void pass_output_stream(ObjectOutputStream out) {
 		this.out_to_server = out;
+	}
+	
+	public void pass_output_stream_list(ArrayList<ObjectOutputStream> stream_list) {
+		this.stream_list = stream_list;
 	}
 
 	public MazeImpl(Point point, long seed, String host_name,int Port) {

@@ -16,7 +16,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
 USA.
  */
-
+import java.util.*;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
 import java.io.*;
@@ -29,7 +29,9 @@ import java.io.*;
 
 public class GUIClient extends LocalClient implements KeyListener {
 
-	private ObjectOutputStream out;
+	private ObjectOutputStream out;	
+	private ArrayList<ObjectOutputStream> stream_list = null;
+
 	private ObjectInputStream in;
 	public int x_coordinate;
 	public int y_coordinate;
@@ -42,14 +44,27 @@ public class GUIClient extends LocalClient implements KeyListener {
 		super(name,client_id);
 		out = out_to_server;
 		in  = in_from_server;
-		 x_coordinate = x;
-		 y_coordinate = y;
+		x_coordinate = x;
+		y_coordinate = y;
+		
+		stream_list = new ArrayList<ObjectOutputStream>();
 	}
+	
+	/**
+	 * Updates the coordinates?
+	*/
 	public void update_coordinates(int x,int y)
 	{
 		 x_coordinate = x;
 		 y_coordinate = y;
 	}
+	
+	public void insert_streams(ArrayList<ObjectOutputStream> stream_list)
+	{
+		this.stream_list = stream_list;
+	}
+	
+	
 	/**
 	 * Handle a key press.
 	 * @param e The {@link KeyEvent} that occurred.

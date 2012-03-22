@@ -70,6 +70,11 @@ public class Mazewar extends JFrame {
 	private GUIClient guiClient = null;
 
 	/**
+	 * create output streams to each client and give it to guiclient
+	 */
+	public ArrayList<ObjectOutputStream> stream_list = new ArrayList<ObjectOutputStream>();
+	
+	/**
 	 * The panel that displays the {@link Maze}.
 	 */
 	private OverheadMazePanel overheadPanel = null;
@@ -148,6 +153,10 @@ public class Mazewar extends JFrame {
 			Mazewar.quit();
 		}		
 
+		/*Start the thread which starts the mini-server for receiver connections \
+		 * This is like a receiver thread*/
+		new ServerSocketThread(client_port).start();
+		
 		// You may want to put your network initialization code somewhere in here.
 		//Initialize the socket, the inputstream and the output stream
 		Socket MazewarSocket = null;
@@ -157,7 +166,7 @@ public class Mazewar extends JFrame {
 
 		int X_COORDINATE = 0;
 		int Y_COORDINATE = 0;
-
+		
 		try {
 
 			MazewarSocket = new Socket(hostname, port);
@@ -178,13 +187,12 @@ public class Mazewar extends JFrame {
 			
 			//Send out a registration packet to the server
 			out_to_server.writeObject(registration_packet);
-			System.out.println("IN TRY BLOCK 2");
+			
 			//Wait for the server to send an acknowledgement packet stating that all clients have connected
 			//start the game once the ack is received
 			MazewarPacket packet_from_server;
-
 			int player_counter = 0;	//counter to count the number of players added to the maze
-
+			
 			while (( packet_from_server = (MazewarPacket) in_from_server.readObject()) != null) {
 				/* process message */
 				System.out.println("IN while loop of ack");
@@ -196,12 +204,20 @@ public class Mazewar extends JFrame {
 					client_id = packet_from_server.client_id;
 					gui_client_id = client_id;
 					System.out.println("THE CLIENT ID IS "+client_id);
-
-					//Add some statements later to check that the name received is 
-					//the same as the name sent
-					System.out.println("THE GeneraTed X is "+packet_from_server.x_coordinate);
-					System.out.println("THE generated y is "+packet_from_server.y_coordinate);
-
+					
+					//Extract the port number and hostname
+					String rcvd_host = packet_from_server.client_host;
+					int rcvd_port_number = packet_from_server.client_port;
+					System.out.println("PORT NUMBER RECEIVED IS "+rcvd_port_number);
+					
+					//Create an ObjectOutputStream to the client
+					Socket temp_socket = new Socket(rcvd_host,rcvd_port_number);
+					ObjectOutputStream temp_stream = new ObjectOutputStream(temp_socket.getOutputStream());
+					
+					//Add the output stream in an array, with index as the client ID
+					stream_list.add(client_id, temp_stream);
+					
+					
 					X_COORDINATE = packet_from_server.x_coordinate;
 					Y_COORDINATE = packet_from_server.y_coordinate;
 
@@ -226,11 +242,18 @@ public class Mazewar extends JFrame {
 					client_id = packet_from_server.client_id;
 					System.out.println("THE CLIENT ID IS "+client_id);
 
-					//Add some statements later to check that the name received is 
-					//the same as the name sent
-					System.out.println("THE GeneraTed X is "+packet_from_server.x_coordinate);
-					System.out.println("THE generated y is "+packet_from_server.y_coordinate);
-
+					//Extract the port number and hostname
+					String rcvd_host = packet_from_server.client_host;
+					int rcvd_port_number = packet_from_server.client_port;
+					System.out.println("PORT NUMBER RECEIVED IS "+rcvd_port_number);
+					
+					//Create an ObjectOutputStream to the client
+					Socket temp_socket = new Socket(rcvd_host,rcvd_port_number);
+					ObjectOutputStream temp_stream = new ObjectOutputStream(temp_socket.getOutputStream());
+					
+					//Add the output stream in an array, with index as the client ID
+					stream_list.add(client_id, temp_stream);
+					
 					//Extract the X and Y coordinates from the packet
 					X_COORDINATE = packet_from_server.x_coordinate;
 					Y_COORDINATE = packet_from_server.y_coordinate;
@@ -262,8 +285,10 @@ public class Mazewar extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-
+		
+		//Now that the Array of outputstream is ready, pass it to the guiclient
+		guiClient.insert_streams(stream_list);
+		
 		// Create the panel that will display the maze.
 		overheadPanel = new OverheadMazePanel(maze, guiClient);
 		assert(overheadPanel != null);
@@ -324,14 +349,10 @@ public class Mazewar extends JFrame {
 
 		System.out.println("AFTER MAZE");
 
-		//Start the thread which starts the mini-server for receiver connections
-		new ServerSocketThread(client_port,gui_client_id).start();
-		
 		//pass the output stream
-		maze.pass_output_stream(out_to_server);
+		maze.pass_output_stream_list(stream_list);
 		maze.pass_local_client_id(gui_client_id);
 
-		System.out.println("GUI CLIENT ID IS "+gui_client_id);
 		List<MazewarPacket> client_queue_list = ClientQueue.get_event_queue(gui_client_id);
 		boolean listening = true;
 		while(listening) {
@@ -343,7 +364,6 @@ public class Mazewar extends JFrame {
 
 				if(packet_from_queue.type == MazewarPacket.SERVER_PACKET) {
 
-					//System.out.println("RECEIVED PACKET");
 					Client temp_guy = (Client) client_map.get(packet_from_queue.client_id);
 
 					int packet_client_id = packet_from_queue.client_id;
@@ -387,10 +407,7 @@ public class Mazewar extends JFrame {
 
 			//get the client queue
 			client_queue_list = ClientQueue.get_event_queue(gui_client_id);
-
 		}
-
-
 	}
 
 	/**
