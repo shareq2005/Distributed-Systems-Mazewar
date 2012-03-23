@@ -25,7 +25,7 @@ public class ClientEnqueueHandler extends Thread{
 			while(( packet_from_client = (MazewarPacket) in_from_client.readObject()) != null)
 			{
 					//update the queue
-					ClientQueue.add_element(packet_from_client,gui_client_id);
+					ClientQueue.add_element(packet_from_client,packet_from_client.destination_clientID);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

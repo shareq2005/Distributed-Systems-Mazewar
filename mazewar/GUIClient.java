@@ -75,7 +75,6 @@ public class GUIClient extends LocalClient implements KeyListener {
 		packet_to_server.type = MazewarPacket.CLIENT_PACKET;
 		packet_to_server.client_id = getClientID();
 		packet_to_server.client_name = getName();
-		//NEW ADDITIONS
 		packet_to_server.x_coordinate = x_coordinate;
 		packet_to_server.y_coordinate = y_coordinate;
 
@@ -106,11 +105,16 @@ public class GUIClient extends LocalClient implements KeyListener {
 				//fire();
 			}
 
-  
 
-			//write to the output stream
+			//write to each output stream for the array list 'stream_list'
 			try {
-				out.writeObject(packet_to_server);
+				int i = 0;
+				for(i = 0; i < 4; i++)
+				{	
+					packet_to_server.destination_clientID = i;
+					ObjectOutputStream temp = stream_list.get(i);
+					temp.writeObject(packet_to_server);
+				}
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

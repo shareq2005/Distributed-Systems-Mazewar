@@ -34,7 +34,10 @@ public class MazewarPacket implements Serializable {
 
 	/* An integer ID of a client, a different ID is given to each client */
 	public int client_id;
-
+	
+	/* Client ID of the destination, used for equeing at the correct queue at the receiver end*/
+	public int destination_clientID;
+	
 	/* The action taken by the client */
 	public int action;
 

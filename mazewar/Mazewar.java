@@ -195,7 +195,6 @@ public class Mazewar extends JFrame {
 			
 			while (( packet_from_server = (MazewarPacket) in_from_server.readObject()) != null) {
 				/* process message */
-				System.out.println("IN while loop of ack");
 				if(packet_from_server.type == MazewarPacket.GUI_CLIENT_ACK) {
 
 					System.out.println("RECEIVED GUI CLIENT ACK");
@@ -216,7 +215,6 @@ public class Mazewar extends JFrame {
 					
 					//Add the output stream in an array, with index as the client ID
 					stream_list.add(client_id, temp_stream);
-					
 					
 					X_COORDINATE = packet_from_server.x_coordinate;
 					Y_COORDINATE = packet_from_server.y_coordinate;
