@@ -478,18 +478,18 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 	private synchronized void killClient(Client source, Client target) {
 		assert(source != null);
 		assert(target != null);
-		System.out.println("IN KILL CLIENT, name of the client is"+source.getName());
-		System.out.println("CLIENT ID IS "+source.getClientID());
-		Mazewar.consolePrintLn(source.getName() + " just vaporized " + 
-				target.getName());
+		
+		Mazewar.consolePrintLn(source.getName() + " just vaporized " + target.getName());
 		Object o = clientMap.remove(target);
 		assert(o instanceof Point);
 		Point point = (Point)o;
 		CellImpl cell = getCellImpl(point);
 		cell.setContents(null);
+		
 		// Pick a random starting point, and check to see if it is already occupied
 		point = new Point(randomGen.nextInt(maxX),randomGen.nextInt(maxY));
 		cell = getCellImpl(point);
+		
 		// Repeat until we find an empty cell
 		while(cell.getContents() != null) {
 			point = new Point(randomGen.nextInt(maxX),randomGen.nextInt(maxY));
@@ -524,7 +524,16 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 					packet_to_server.action = MazewarPacket.CLIENT_KILLED;
 					packet_to_server.x_coordinate = point.getX();
 					packet_to_server.y_coordinate = point.getY();
-					out_to_server.writeObject(packet_to_server);
+					
+					int i = 0;
+					
+					for(i = 0; i < 4; i++)
+					{
+						packet_to_server.destination_clientID = i;
+						ObjectOutputStream temp = stream_list.get(i);
+						temp.writeObject(packet_to_server);
+					}
+					
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
