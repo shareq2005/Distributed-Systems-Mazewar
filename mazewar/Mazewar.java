@@ -360,7 +360,7 @@ public class Mazewar extends JFrame {
 				MazewarPacket packet_from_queue;
 				packet_from_queue = client_queue_list.get(0);
 
-				if(packet_from_queue.type == MazewarPacket.SERVER_PACKET) {
+				if(packet_from_queue.type == MazewarPacket.CLIENT_PACKET) {
 
 					Client temp_guy = (Client) client_map.get(packet_from_queue.client_id);
 
