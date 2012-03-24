@@ -368,8 +368,11 @@ public class Mazewar extends JFrame {
 
 					if(packet_from_queue.action == MazewarPacket.CLIENT_KILLED)
 					{
+						System.out.println("CLIENT KILLED PACKET RECEIVED");
+						
 						if(packet_client_id != gui_client_id) {
-
+							System.out.println("packet_client_id is "+packet_client_id);
+							System.out.println("GUI CLIENT ID IS "+gui_client_id);
 							maze.respawn_remote_client(temp_guy, packet_from_queue.x_coordinate,packet_from_queue.y_coordinate);
 						};
 					}

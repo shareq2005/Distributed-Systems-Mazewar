@@ -42,7 +42,7 @@ public class MazewarServerHandlerThread extends Thread {
 				packetToClient.type = MazewarPacket.SERVER_PACKET;
 
 				int client_id;
-				
+
 				/* process message */
 				List<MazewarPacket> player_list = null;
 
@@ -118,10 +118,11 @@ public class MazewarServerHandlerThread extends Thread {
 					MazewarPacket info_packet = new MazewarPacket();
 
 
-					int i;
-					for(i = 0; i < 4; i++)
-					{
-						synchronized(this) {			
+					synchronized(this) {			
+
+						int i;
+						for(i = 0; i < 4; i++)
+						{
 							player_list = PlayersQueue.get_player_list();
 							info_packet = player_list.get(i);
 
@@ -152,10 +153,10 @@ public class MazewarServerHandlerThread extends Thread {
 					packet_queue.action = packetFromClient.action;
 					packet_queue.client_id = packetFromClient.client_id;
 					packet_queue.client_name = packetFromClient.client_name;
-					
+
 					packet_queue.sequence_Num = sequence_Num;
 					List<MazewarPacket> server_queue = ServerQueue.get_event_queue();
-					
+
 					synchronized(ServerQueue.lock1) {
 						//store it in the queue
 						server_queue = ServerQueue.get_event_queue();
@@ -166,9 +167,9 @@ public class MazewarServerHandlerThread extends Thread {
 						//update the queue
 						ServerQueue.set_event_queue(server_queue);
 
-						
+
 					}
-					
+
 					continue;
 				};
 

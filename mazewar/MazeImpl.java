@@ -59,7 +59,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 	 */
 	private ObjectOutputStream out_to_server = null;
 	private ArrayList<ObjectOutputStream> stream_list = null;
-	
+
 	private int local_client_id;
 
 	public void pass_local_client_id(int client_id) {
@@ -69,7 +69,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 	public void pass_output_stream(ObjectOutputStream out) {
 		this.out_to_server = out;
 	}
-	
+
 	public void pass_output_stream_list(ArrayList<ObjectOutputStream> stream_list) {
 		this.stream_list = stream_list;
 	}
@@ -109,7 +109,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 	 * @return A reconstituted {@link MazeImpl}. 
 	 */
 	public static Maze readMazeFile(String mazefile)
-	throws IOException, ClassNotFoundException {
+			throws IOException, ClassNotFoundException {
 		assert(mazefile != null);
 		FileInputStream in = new FileInputStream(mazefile);
 		ObjectInputStream s = new ObjectInputStream(in);
@@ -123,7 +123,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 	 * @param mazefile The filename to write the serialized object to.
 	 * */
 	public void save(String mazefile)
-	throws IOException {
+			throws IOException {
 		assert(mazefile != null);
 		FileOutputStream out = new FileOutputStream(mazefile);
 		ObjectOutputStream s = new ObjectOutputStream(out);
@@ -205,7 +205,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 	public boolean checkBounds(Point point) {
 		assert(point != null);
 		return (point.getX() >= 0) && (point.getY() >= 0) && 
-		(point.getX() < maxX) && (point.getY() < maxY);
+				(point.getX() < maxX) && (point.getY() < maxY);
 	}
 
 	public Point getSize() {
@@ -478,73 +478,89 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 	private synchronized void killClient(Client source, Client target) {
 		assert(source != null);
 		assert(target != null);
-		
+
 		Mazewar.consolePrintLn(source.getName() + " just vaporized " + target.getName());
 		Object o = clientMap.remove(target);
 		assert(o instanceof Point);
 		Point point = (Point)o;
 		CellImpl cell = getCellImpl(point);
 		cell.setContents(null);
-		
-		// Pick a random starting point, and check to see if it is already occupied
-		point = new Point(randomGen.nextInt(maxX),randomGen.nextInt(maxY));
-		cell = getCellImpl(point);
-		
-		// Repeat until we find an empty cell
-		while(cell.getContents() != null) {
+
+		//check if local client was killed 
+		if(target.getClientID() == local_client_id) {
+
+			System.out.println("LOCAL CLIENT KILLED ID IS "+local_client_id);
+
+			// Pick a random starting point, and check to see if it is already occupied
 			point = new Point(randomGen.nextInt(maxX),randomGen.nextInt(maxY));
 			cell = getCellImpl(point);
-		}
 
-		//HACKING AGAIN
-		Direction d = Direction.hack();
+			// Repeat until we find an empty cell
+			while(cell.getContents() != null) {
+				point = new Point(randomGen.nextInt(maxX),randomGen.nextInt(maxY));
+				cell = getCellImpl(point);
+			}
 
-		/*
-		while(cell.isWall(d)) {
-			d = Direction.hack();
-		}
-		*/
+			//HACKING AGAIN
+			Direction d = Direction.hack();
 
-		//Commenting the following line has no effect??
-		cell.setContents(target);
+			/*
+				while(cell.isWall(d)) {
+				d = Direction.hack();
+				}
+			 */
 
-		clientMap.put(target, new DirectedPoint(point, d));
+			//Commenting the following line has no effect??
+			cell.setContents(target);
 
-		update();
+			clientMap.put(target, new DirectedPoint(point, d));
 
-		notifyClientKilled(source, target);
+			update();
 
-		synchronized(ClientQueue.lock2) {
-			//check if the local client called killClient
-			if(source.getClientID() == local_client_id)
-			{
+			notifyClientKilled(source, target);
+
+			System.out.println("BEFORE SYNCHRONIZED");
+
+			synchronized(ClientQueue.lock2) {
+				System.out.println("IN SYNCHRONIZED");
+
 				try {
 					MazewarPacket packet_to_server = new MazewarPacket();
 					packet_to_server.type = MazewarPacket.CLIENT_PACKET;
 					packet_to_server.action = MazewarPacket.CLIENT_KILLED;
 					packet_to_server.x_coordinate = point.getX();
 					packet_to_server.y_coordinate = point.getY();
+					packet_to_server.client_id = local_client_id;
 					
 					int i = 0;
-					
+
+					System.out.println("SENDING CLIENT KILLED PACKET");
+
 					for(i = 0; i < 4; i++)
 					{
 						packet_to_server.destination_clientID = i;
 						ObjectOutputStream temp = stream_list.get(i);
 						temp.writeObject(packet_to_server);
 					}
-					
+
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			};
 		}
+		else 
+		{
+			update();
+			//notifyClientKilled(source, target);
+		}
 	}
 
 	public synchronized void respawn_remote_client(Client client, int x, int y)
 	{
-		Point new_point,old_point;
+		System.out.println("RESPAWNING REMOTE CLIENT");
+
+		Point new_point;
 
 		//point where the client is supposed to be put
 		new_point = new Point(x,y);
@@ -552,35 +568,15 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 		//get the cell object at the new point
 		CellImpl cell_new_point = getCellImpl(new_point);
 
-		//point where the client was
-		old_point = client.getPoint();
-
-		//get the cell object at the old point
-		CellImpl cell_old_point = getCellImpl(old_point);
-
 		//always set the initial direction to south
 		Direction d = Direction.hack();
-
-		//delete the contents of the old cell
-		cell_old_point.setContents(null);
 
 		//add the client at the new point
 		cell_new_point.setContents(client);
 
-		//add the client at the new point
-		//cell_new_point.setContents(client);
-
-
-		/*while(cell_new_point.getContents() != null) {
-			System.out.println("+++++++++++++++++ RESPAWN LOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOP");
-			new_point = new Point(randomGen.nextInt(maxX),randomGen.nextInt(maxY));
-			cell_new_point = getCellImpl(new_point);
-		}*/
-
 		clientMap.put(client, new DirectedPoint(new_point, d));
 
 		update();
-
 	}
 
 	/**
