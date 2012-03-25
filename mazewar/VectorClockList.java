@@ -123,4 +123,16 @@ public class VectorClockList {
 			clock_three = new_clock;
 		};
 	}
+	
+	public static void update_clock(int client_id, VectorClock clock)
+	{
+		if(client_id == 0)
+			clock_zero = clock;
+		else if(client_id == 1)
+			clock_one = clock;
+		else if(client_id == 2)
+			clock_two = clock;
+		else if(client_id == 3)
+			clock_three = clock;
+	}
 }

@@ -486,6 +486,13 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 		CellImpl cell = getCellImpl(point);
 		cell.setContents(null);
 		
+		//increment the local clock at the target's index
+		VectorClock local_clock = VectorClockList.get_vector_clock(local_client_id);
+		int target_client_id = target.getClientID();
+		String string_cid = Integer.toString(target_client_id);
+		local_clock.incrementClock(string_cid);
+		VectorClockList.update_clock(local_client_id, local_clock);
+		
 		System.out.println("IN KILL CLIENT, LOCAL CLIENT IS "+local_client_id);
 		
 		//check if local client was killed 
