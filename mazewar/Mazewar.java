@@ -86,6 +86,11 @@ public class Mazewar extends JFrame {
 	 */
 	private JTable scoreTable = null;
 
+	/**
+	 * 	IMPLEMENTATION OF VECTOR CLOCKS
+	 */
+	public VectorClock local = new VectorClock();
+	
 	/** 
 	 * Create the textpane statically so that we can 
 	 * write to it globally using
