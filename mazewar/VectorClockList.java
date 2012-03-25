@@ -72,4 +72,19 @@ public class VectorClockList {
 			clock_three.incrementClock("3");
 		};
 	}
+	
+	public static VectorClock get_vector_clock(int client_id)
+	{
+		if(client_id == 0)
+			return clock_zero;
+		else if(client_id == 1)
+			return clock_one;
+		else if(client_id == 2)
+			return clock_two;
+		else if(client_id == 3)
+			return clock_three;
+			
+		System.out.println("INVALID CLIENT_ID PASSED");
+		return null;
+	}
 }

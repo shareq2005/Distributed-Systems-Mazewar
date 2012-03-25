@@ -532,6 +532,11 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 					packet_to_server.y_coordinate = point.getY();
 					packet_to_server.client_id = local_client_id;
 					
+					//increment the vector clock twice
+					VectorClock temp_clock;
+					
+					
+					
 					int i = 0;
 
 					System.out.println("SENDING CLIENT KILLED PACKET");

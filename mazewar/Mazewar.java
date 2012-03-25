@@ -73,7 +73,7 @@ public class Mazewar extends JFrame {
 	 * create output streams to each client and give it to guiclient
 	 */
 	public ArrayList<ObjectOutputStream> stream_list = new ArrayList<ObjectOutputStream>();
-	
+
 	/**
 	 * The panel that displays the {@link Maze}.
 	 */
@@ -90,7 +90,7 @@ public class Mazewar extends JFrame {
 	 * 	IMPLEMENTATION OF VECTOR CLOCKS
 	 */
 	public VectorClock local = new VectorClock();
-	
+
 	/** 
 	 * Create the textpane statically so that we can 
 	 * write to it globally using
@@ -161,7 +161,7 @@ public class Mazewar extends JFrame {
 		/*Start the thread which starts the mini-server for receiver connections \
 		 * This is like a receiver thread*/
 		new ServerSocketThread(client_port).start();
-		
+
 		// You may want to put your network initialization code somewhere in here.
 		//Initialize the socket, the inputstream and the output stream
 		Socket MazewarSocket = null;
@@ -171,7 +171,7 @@ public class Mazewar extends JFrame {
 
 		int X_COORDINATE = 0;
 		int Y_COORDINATE = 0;
-		
+
 		try {
 
 			MazewarSocket = new Socket(hostname, port);
@@ -189,15 +189,15 @@ public class Mazewar extends JFrame {
 			//Attach the client host and port to the registration packet
 			registration_packet.client_host = client_host;
 			registration_packet.client_port = client_port;
-			
+
 			//Send out a registration packet to the server
 			out_to_server.writeObject(registration_packet);
-			
+
 			//Wait for the server to send an acknowledgement packet stating that all clients have connected
 			//start the game once the ack is received
 			MazewarPacket packet_from_server;
 			int player_counter = 0;	//counter to count the number of players added to the maze
-			
+
 			while (( packet_from_server = (MazewarPacket) in_from_server.readObject()) != null) {
 				/* process message */
 				if(packet_from_server.type == MazewarPacket.GUI_CLIENT_ACK) {
@@ -208,19 +208,19 @@ public class Mazewar extends JFrame {
 					client_id = packet_from_server.client_id;
 					gui_client_id = client_id;
 					System.out.println("THE CLIENT ID IS "+client_id);
-					
+
 					//Extract the port number and hostname
 					String rcvd_host = packet_from_server.client_host;
 					int rcvd_port_number = packet_from_server.client_port;
 					System.out.println("PORT NUMBER RECEIVED IS "+rcvd_port_number);
-					
+
 					//Create an ObjectOutputStream to the client
 					Socket temp_socket = new Socket(rcvd_host,rcvd_port_number);
 					ObjectOutputStream temp_stream = new ObjectOutputStream(temp_socket.getOutputStream());
-					
+
 					//Add the output stream in an array, with index as the client ID
 					stream_list.add(client_id, temp_stream);
-					
+
 					X_COORDINATE = packet_from_server.x_coordinate;
 					Y_COORDINATE = packet_from_server.y_coordinate;
 
@@ -249,14 +249,14 @@ public class Mazewar extends JFrame {
 					String rcvd_host = packet_from_server.client_host;
 					int rcvd_port_number = packet_from_server.client_port;
 					System.out.println("PORT NUMBER RECEIVED IS "+rcvd_port_number);
-					
+
 					//Create an ObjectOutputStream to the client
 					Socket temp_socket = new Socket(rcvd_host,rcvd_port_number);
 					ObjectOutputStream temp_stream = new ObjectOutputStream(temp_socket.getOutputStream());
-					
+
 					//Add the output stream in an array, with index as the client ID
 					stream_list.add(client_id, temp_stream);
-					
+
 					//Extract the X and Y coordinates from the packet
 					X_COORDINATE = packet_from_server.x_coordinate;
 					Y_COORDINATE = packet_from_server.y_coordinate;
@@ -265,7 +265,7 @@ public class Mazewar extends JFrame {
 
 					maze.addClient(temp,X_COORDINATE,Y_COORDINATE);
 					client_map.put(client_id, temp);
-					
+
 					//break out of the loop if all the clients get connected
 					player_counter++;
 					if(player_counter == 4)
@@ -288,8 +288,8 @@ public class Mazewar extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
+
+
 		//Now that the Array of outputstream is ready, pass it to the guiclient
 		guiClient.insert_streams(stream_list);
 
@@ -359,56 +359,74 @@ public class Mazewar extends JFrame {
 
 		List<MazewarPacket> client_queue_list = ClientQueue.get_event_queue(gui_client_id);
 		boolean listening = true;
-		while(listening) {
-
+		while(listening) {	
 			if (client_queue_list.size() > 0) 
 			{
-				MazewarPacket packet_from_queue;
-				packet_from_queue = client_queue_list.get(0);
 
-				if(packet_from_queue.type == MazewarPacket.CLIENT_PACKET) {
+				int queue_traversal = 0;
+				queue_traversal = client_queue_list.size();
 
-					Client temp_guy = (Client) client_map.get(packet_from_queue.client_id);
+				int x;
+				for(x = 0; x <= queue_traversal ; x++) {
 
+					//extract an received element from the queue
+					MazewarPacket packet_from_queue;
+					packet_from_queue = client_queue_list.get(x);
+
+					//Get the local Vector clock
+					VectorClock local_clock = VectorClockList.get_vector_clock(gui_client_id);
+
+					//Get the Vector time stamp in the packet
+					VectorClock received_clock = packet_from_queue.clock;
+
+					//get the client id 
 					int packet_client_id = packet_from_queue.client_id;
 
-					if(packet_from_queue.action == MazewarPacket.CLIENT_KILLED)
-					{
-						System.out.println("CLIENT KILLED PACKET RECEIVED");
-						
-						if(packet_client_id != gui_client_id) {
-							System.out.println("packet_client_id is "+packet_client_id);
-							System.out.println("GUI CLIENT ID IS "+gui_client_id);
-							maze.respawn_remote_client(temp_guy, packet_from_queue.x_coordinate,packet_from_queue.y_coordinate);
-						};
-					}
-					else if(packet_from_queue.action == MazewarPacket.MOVE_UP)
-					{
-						temp_guy.forward();
-					}
-					else if(packet_from_queue.action == MazewarPacket.MOVE_DOWN)
-					{
-						temp_guy.backup();
-					}
-					else if(packet_from_queue.action == MazewarPacket.MOVE_LEFT)
-					{
-						temp_guy.turnLeft();
-					}
-					else if(packet_from_queue.action == MazewarPacket.MOVE_RIGHT)
-					{
-						temp_guy.turnRight();
-					}
-					else if(packet_from_queue.action == MazewarPacket.SPACE_FIRE)
-					{
-						temp_guy.fire();
-					};
+					if(VectorClock.ISIScompare(packet_client_id, local_clock, received_clock)) {
 
-					//remove the first element in the client queue
-					ClientQueue.remove_element(gui_client_id);
-				}
-				else
-				{
-					System.out.println("SHOULD NEVER BE HERE");
+						if(packet_from_queue.type == MazewarPacket.CLIENT_PACKET) {
+
+							Client temp_guy = (Client) client_map.get(packet_client_id);
+
+							if(packet_from_queue.action == MazewarPacket.CLIENT_KILLED)
+							{
+								System.out.println("CLIENT KILLED PACKET RECEIVED");
+
+								if(packet_client_id != gui_client_id) {
+									System.out.println("packet_client_id is "+packet_client_id);
+									System.out.println("GUI CLIENT ID IS "+gui_client_id);
+									maze.respawn_remote_client(temp_guy, packet_from_queue.x_coordinate,packet_from_queue.y_coordinate);
+								};
+							}
+							else if(packet_from_queue.action == MazewarPacket.MOVE_UP)
+							{
+								temp_guy.forward();
+							}
+							else if(packet_from_queue.action == MazewarPacket.MOVE_DOWN)
+							{
+								temp_guy.backup();
+							}
+							else if(packet_from_queue.action == MazewarPacket.MOVE_LEFT)
+							{
+								temp_guy.turnLeft();
+							}
+							else if(packet_from_queue.action == MazewarPacket.MOVE_RIGHT)
+							{
+								temp_guy.turnRight();
+							}
+							else if(packet_from_queue.action == MazewarPacket.SPACE_FIRE)
+							{
+								temp_guy.fire();
+							};
+
+							//remove the first element in the client queue
+							ClientQueue.remove_element(gui_client_id);
+						}
+						else
+						{
+							System.out.println("SHOULD NEVER BE HERE");
+						}
+					}
 				}
 			};
 
@@ -426,14 +444,14 @@ public class Mazewar extends JFrame {
 		/* variables for hostname/port */
 		String server_hostname = "localhost";
 		int server_port = 4444;
-		
+
 		/* variable for the port the local server will run on*/
 		int local_port = 1111;
-		
+
 		/*Get the IP address of the local client */
 		InetAddress localIP = InetAddress.getLocalHost();
 		String LocalIP = localIP.getHostAddress();
-		
+
 		if(args.length == 3) {
 			server_hostname = args[0];
 			server_port = Integer.parseInt(args[1]);
@@ -442,9 +460,9 @@ public class Mazewar extends JFrame {
 			System.err.println("ERROR: Invalid arguments!");
 			System.exit(-1);
 		}
-		
+
 		//Mazewar instance
 		new Mazewar(server_hostname,server_port,local_port,LocalIP);
-		
+
 	}
 }

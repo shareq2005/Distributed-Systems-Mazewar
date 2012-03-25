@@ -108,8 +108,12 @@ public class GUIClient extends LocalClient implements KeyListener {
 			}
 			
 			//Increment the ISIS Vector time-stamp for the client
-			
+			VectorClockList.increment_vector_clock(getClientID());
+			VectorClock temp_clock = VectorClockList.get_vector_clock(getClientID());
 
+			//pass the vector clock to the Mazewar packet
+			packet_to_server.clock = temp_clock;
+			
 			//write to each output stream for the array list 'stream_list'
 			try {
 				int i = 0;
@@ -123,7 +127,6 @@ public class GUIClient extends LocalClient implements KeyListener {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-
 		}
 	}
 

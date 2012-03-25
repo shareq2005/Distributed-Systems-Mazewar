@@ -1,7 +1,7 @@
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
-
+import java.lang.Boolean;
 /**
  * Implements a VectorClock that records the time stamps of all send and receive
  * events. It contains functions to compare and merge two VectorClocks.
@@ -192,7 +192,7 @@ public class VectorClock extends HashMap<String, Integer> implements Serializabl
 				lSmaller = false;
 			}
 		}
-
+		
 		// Go over all elements in Clock two.
 		for (String lEntry : pTwo.keySet())
 		{
@@ -222,4 +222,18 @@ public class VectorClock extends HashMap<String, Integer> implements Serializabl
 			return VectorComparison.SIMULTANEOUS;
 		}
 	}
-}
+
+
+	/**
+	 * ISIS vector clock comparison method
+	 * 
+	 * @param sender_id - this is the sender's ID
+	 * @param pOne - First Clock being compared.
+	 * @param pTwo - Second Clock being compared.
+	 * 
+	 */
+	public static Boolean ISIScompare(int sender_id, VectorClock pOne, VectorClock pTwo)
+	{
+		return true;
+	}	
+}	
