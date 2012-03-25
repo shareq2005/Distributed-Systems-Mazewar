@@ -485,7 +485,9 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 		Point point = (Point)o;
 		CellImpl cell = getCellImpl(point);
 		cell.setContents(null);
-
+		
+		System.out.println("IN KILL CLIENT, LOCAL CLIENT IS "+local_client_id);
+		
 		//check if local client was killed 
 		if(target.getClientID() == local_client_id) {
 
@@ -532,13 +534,16 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 					packet_to_server.y_coordinate = point.getY();
 					packet_to_server.client_id = local_client_id;
 					
-					//increment the vector clock twice
-					VectorClock temp_clock;
+					//increment the vector clock
+					VectorClockList.increment_vector_clock(local_client_id);
 					
+					//get the vector clock
+					VectorClock temp_clock = VectorClockList.get_vector_clock(local_client_id);
 					
+					//attach the clock into the packet to server
+					packet_to_server.clock = temp_clock;
 					
 					int i = 0;
-
 					System.out.println("SENDING CLIENT KILLED PACKET");
 
 					for(i = 0; i < 4; i++)
