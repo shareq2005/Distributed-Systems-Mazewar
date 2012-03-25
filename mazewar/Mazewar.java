@@ -32,6 +32,7 @@ import java.io.Serializable;
 import java.net.*;
 import java.util.*;
 import java.io.*;
+import java.lang.*;
 
 /**
  * The entry point and glue code for the game.  It also contains some helpful
@@ -376,7 +377,6 @@ public class Mazewar extends JFrame {
 
 					//extract an received element from the queue
 					MazewarPacket packet_from_queue;
-					System.out.println("X is "+x);
 					packet_from_queue = client_queue_list.get(x);
 
 					//Get the local Vector clock
@@ -387,8 +387,25 @@ public class Mazewar extends JFrame {
 
 					//get the client id 
 					int packet_client_id = packet_from_queue.client_id;
-
-					if(VectorClock.ISIScompare(packet_client_id, local_clock, received_clock)) {
+					
+					Integer[] local_values = local_clock.getOrderedValues();
+					Integer[] received_values = received_clock.getOrderedValues();
+					
+					System.out.println("LOCAL VALUES ARE");
+					System.out.println(local_values[0]);
+					System.out.println(local_values[1]);
+					System.out.println(local_values[2]);
+					System.out.println(local_values[3]);
+					
+					System.out.println("RECEIVED VALUES ARE");
+					System.out.println(received_values[0]);
+					System.out.println(received_values[1]);
+					System.out.println(received_values[2]);
+					System.out.println(received_values[3]);
+					
+					if(VectorClock.ISIScompare(packet_client_id,received_clock,local_clock) == true) {
+						
+						System.out.println("COMPARE TRUE");
 						
 						//Merge the vector clock
 						VectorClockList.merge_clock(gui_client_id, received_clock);
@@ -428,6 +445,8 @@ public class Mazewar extends JFrame {
 								temp_guy.fire();
 							};
 							
+							
+							System.out.println("REMOVING XTH ELEMENT");
 							
 							//remove the xth element in the client queue
 							ClientQueue.remove_element(gui_client_id,x);

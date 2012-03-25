@@ -237,6 +237,9 @@ public class VectorClock extends HashMap<String, Integer> implements Serializabl
 	 */
 	public static Boolean ISIScompare(int sender_id, VectorClock pOne, VectorClock pTwo)
 	{
+		System.out.println("SENDER's ID is "+sender_id);
+				
+		
 		// we would have the sender's ID
 		Integer[] int_values1 = pOne.getOrderedValues();
 		Integer[] int_values2 = pTwo.getOrderedValues();
@@ -248,7 +251,7 @@ public class VectorClock extends HashMap<String, Integer> implements Serializabl
 		
 		if(int_values1[sender_id] != int_values2[sender_id]+1)
 		{
-			
+			System.out.println("RETURNING FALSE HERE");
 			return false;
 			// Queue it;
 		}
