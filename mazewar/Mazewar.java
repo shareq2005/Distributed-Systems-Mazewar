@@ -289,10 +289,15 @@ public class Mazewar extends JFrame {
 			e.printStackTrace();
 		}
 
-
+		
+		if(guiClient == null) System.out.println("GUI CLIENT IS NULL");
+		
 		//Now that the Array of outputstream is ready, pass it to the guiclient
 		guiClient.insert_streams(stream_list);
-
+		
+		//Initialize vector clocks
+		VectorClockList.intialize_vector_clocks(gui_client_id);
+		
 		// Create the panel that will display the maze.
 		overheadPanel = new OverheadMazePanel(maze, guiClient);
 		assert(overheadPanel != null);

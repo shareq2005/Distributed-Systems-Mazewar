@@ -3,8 +3,7 @@ import java.util.*;
 public class VectorClockList {
 
 	/**
-	 * 
-	 * List of the 4 vector clocks
+	 * List of the 4 vector clocks for each client
 	 */
 	public static VectorClock clock_zero = new VectorClock();
 	public static VectorClock clock_one = new VectorClock();

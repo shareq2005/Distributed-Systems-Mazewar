@@ -9,7 +9,8 @@ public class MazewarServerHandlerThread extends Thread {
 	private Socket socket = null;
 	private Maze maze_server = null;
 	private static int sequence_Num = 0;
-
+	public int gui_client_id;
+	
 	public MazewarServerHandlerThread(Socket socket) {
 		super("MazewarServerHandlerThread");
 		this.socket = socket;
@@ -49,7 +50,6 @@ public class MazewarServerHandlerThread extends Thread {
 				if(packetFromClient.type == MazewarPacket.CLIENT_REGISTRATION) 
 				{	
 					synchronized(this) {
-						
 						//add the packet to the list
 						//assign a client identification number
 						player_list = PlayersQueue.get_player_list();
@@ -64,6 +64,7 @@ public class MazewarServerHandlerThread extends Thread {
 
 						//fine the number 
 						//of elements in the array list
+						gui_client_id = player_list.size();
 						client_id = player_list.size();
 
 						//Generate a random number that hasn't been generated before
@@ -92,11 +93,11 @@ public class MazewarServerHandlerThread extends Thread {
 						//Store the unique x and y coordinates in the packet
 						packetFromClient.x_coordinate = x;
 						packetFromClient.y_coordinate = y;					
-						packetFromClient.client_id = client_id;
-						System.out.println("THE CLIENT ID IS "+client_id);
+						packetFromClient.client_id = gui_client_id;
+						System.out.println("THE CLIENT ID IS "+gui_client_id);
 
 						//Add it back to the list+
-						player_list.add(client_id, packetFromClient);
+						player_list.add(gui_client_id, packetFromClient);
 						PlayersQueue.set_player_list(player_list);
 
 					}
@@ -130,7 +131,7 @@ public class MazewarServerHandlerThread extends Thread {
 							System.out.println("INFO PACKET: CLIENT ID IS "+info_packet.client_id);
 
 							//check if the client id is of the local GUI client connected to this thread
-							if(info_packet.client_id == client_id)
+							if(info_packet.client_id == gui_client_id)
 								info_packet.type = MazewarPacket.GUI_CLIENT_ACK;
 							else
 								info_packet.type = MazewarPacket.REMOTE_CLIENT_ACK;
