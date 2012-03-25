@@ -389,7 +389,10 @@ public class Mazewar extends JFrame {
 					int packet_client_id = packet_from_queue.client_id;
 
 					if(VectorClock.ISIScompare(packet_client_id, local_clock, received_clock)) {
-
+						
+						//Merge the vector clock
+						VectorClockList.merge_clock(gui_client_id, received_clock);
+						
 						if(packet_from_queue.type == MazewarPacket.CLIENT_PACKET) {
 
 							Client temp_guy = (Client) client_map.get(packet_client_id);

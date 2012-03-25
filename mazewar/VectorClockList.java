@@ -86,4 +86,41 @@ public class VectorClockList {
 		System.out.println("INVALID CLIENT_ID PASSED");
 		return null;
 	}
+	
+	/**
+	 * @brief This is a helper function for merging the vector clocks
+	 * 
+	 * @param local_client_id - the client id of the local client
+	 * @param received_clock - received vector clock of the 
+	 */
+	public static void merge_clock(int local_client_id,VectorClock received_clock)
+	{
+		VectorClock temp_clock = null;
+		VectorClock new_clock;
+		
+		if(local_client_id == 0)
+		{
+			temp_clock = clock_zero;
+			new_clock = VectorClock.max(temp_clock, received_clock);
+			clock_zero = new_clock;
+		}
+		else if(local_client_id == 1)
+		{
+			temp_clock = clock_one;
+			new_clock = VectorClock.max(temp_clock, received_clock);
+			clock_one = new_clock;
+		}
+		else if(local_client_id == 2)
+		{
+			temp_clock = clock_two;
+			new_clock = VectorClock.max(temp_clock, received_clock);
+			clock_two = new_clock;
+		}
+		else if(local_client_id == 3)
+		{
+			temp_clock = clock_three;
+			new_clock = VectorClock.max(temp_clock, received_clock);
+			clock_three = new_clock;
+		};
+	}
 }
