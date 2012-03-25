@@ -24,7 +24,7 @@ public class MazewarPacket implements Serializable {
 	/* trying to add sequence numbers as mentioned in the lab hand out */
 	public int sequence_Num = 0;
 
-	/* the packet payload */
+	public VectorClock clock;
 
 	/* initialized to be a null packet */
 	public int type = MAZEWAR_NULL;

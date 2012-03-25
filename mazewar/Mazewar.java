@@ -288,7 +288,8 @@ public class Mazewar extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		
+		
 		//Now that the Array of outputstream is ready, pass it to the guiclient
 		guiClient.insert_streams(stream_list);
 

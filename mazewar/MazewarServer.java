@@ -46,7 +46,7 @@ public class MazewarServer {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		
 		boolean sending = true;
 		List<ObjectOutputStream> output_streams_list = PlayersQueue.get_out_streams();
 		List<MazewarPacket> server_queue = ServerQueue.get_event_queue();

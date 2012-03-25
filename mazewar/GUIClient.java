@@ -106,7 +106,9 @@ public class GUIClient extends LocalClient implements KeyListener {
 				packet_to_server.action = MazewarPacket.SPACE_FIRE;
 				//fire();
 			}
-
+			
+			//Increment the ISIS Vector time-stamp for the client
+			
 
 			//write to each output stream for the array list 'stream_list'
 			try {
