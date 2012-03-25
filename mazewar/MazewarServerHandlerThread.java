@@ -7,10 +7,10 @@ import java.util.*;
 
 public class MazewarServerHandlerThread extends Thread {
 	private Socket socket = null;
-	private Maze maze_server = null;
 	private static int sequence_Num = 0;
+	public static int number_of_clients = 0;
 	public int gui_client_id;
-	
+
 	public MazewarServerHandlerThread(Socket socket) {
 		super("MazewarServerHandlerThread");
 		this.socket = socket;
@@ -42,8 +42,6 @@ public class MazewarServerHandlerThread extends Thread {
 				MazewarPacket packetToClient = new MazewarPacket();
 				packetToClient.type = MazewarPacket.SERVER_PACKET;
 
-				int client_id;
-
 				/* process message */
 				List<MazewarPacket> player_list = null;
 
@@ -54,8 +52,6 @@ public class MazewarServerHandlerThread extends Thread {
 						//assign a client identification number
 						player_list = PlayersQueue.get_player_list();
 
-						int i;
-
 						if(player_list.size() == 0)
 						{
 							System.out.println("ARRAY EMPTY");
@@ -65,8 +61,6 @@ public class MazewarServerHandlerThread extends Thread {
 						//fine the number 
 						//of elements in the array list
 						gui_client_id = player_list.size();
-						client_id = player_list.size();
-
 						//Generate a random number that hasn't been generated before
 						Random randomGen = new Random();
 						int x =  randomGen.nextInt(packetFromClient.mazeWidth);
@@ -101,43 +95,35 @@ public class MazewarServerHandlerThread extends Thread {
 						PlayersQueue.set_player_list(player_list);
 
 					}
-					
-					//Wait for the number of players to get to 4
-					int number_of_players = 0;
-					Thread thread;
-					while(number_of_players < 4) {
-						number_of_players = 0;
-						thread = new Thread(this);
-						thread.sleep(10);
-						//System.out.println("a");
-						number_of_players = (PlayersQueue.get_player_list()).size();   
-					}
-
-					System.out.println("ALL 4 PLAYERS REGISTERED");
-
-
-					MazewarPacket info_packet = new MazewarPacket();
-
 
 					synchronized(this) {			
+						if(player_list.size() == 4) {
+							MazewarPacket info_packet = new MazewarPacket();
+							System.out.println("ALL 4 PLAYERS REGISTERED");
 
-						int i;
-						for(i = 0; i < 4; i++)
-						{
-							player_list = PlayersQueue.get_player_list();
-							info_packet = player_list.get(i);
+							int i;
+							for(i = 0; i < 4; i++)
+							{
+								player_list = PlayersQueue.get_player_list();
+								info_packet = player_list.get(i);
 
-							System.out.println("INFO PACKET: NAME IS "+info_packet.client_name);
-							System.out.println("INFO PACKET: CLIENT ID IS "+info_packet.client_id);
+								System.out.println("INFO PACKET: NAME IS "+info_packet.client_name);
+								System.out.println("INFO PACKET: CLIENT ID IS "+info_packet.client_id);
 
-							//check if the client id is of the local GUI client connected to this thread
-							if(info_packet.client_id == gui_client_id)
-								info_packet.type = MazewarPacket.GUI_CLIENT_ACK;
-							else
-								info_packet.type = MazewarPacket.REMOTE_CLIENT_ACK;
-
-							//Send the packet to the Mazewar client
-							toClient.writeObject(info_packet);
+								//Send the packet to all the Mazewar clients
+								int j = 0;
+								for(j = 0; j < 4; j++)
+								{
+									//check if the client id is of the local GUI client connected to this thread
+									if(info_packet.client_id == j)
+										info_packet.type = MazewarPacket.GUI_CLIENT_ACK;
+									else
+										info_packet.type = MazewarPacket.REMOTE_CLIENT_ACK;
+									
+									ObjectOutputStream temp_stream = (PlayersQueue.out_streams_list).get(j);
+									temp_stream.writeObject(info_packet);
+								}
+							}
 						}
 					}
 
@@ -167,8 +153,6 @@ public class MazewarServerHandlerThread extends Thread {
 
 						//update the queue
 						ServerQueue.set_event_queue(server_queue);
-
-
 					}
 
 					continue;
@@ -200,9 +184,6 @@ public class MazewarServerHandlerThread extends Thread {
 		} catch (ClassNotFoundException e) {
 			if(!gotByePacket)
 				e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 

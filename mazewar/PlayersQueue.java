@@ -12,10 +12,10 @@ public class PlayersQueue {
 	private static List<MazewarPacket> player_id_list = Collections.synchronizedList(player_id);
 	
 	//Array list of out streams
-	private static ArrayList<ObjectOutputStream> out_streams = new ArrayList<ObjectOutputStream>();
+	public static ArrayList<ObjectOutputStream> out_streams = new ArrayList<ObjectOutputStream>();
 	
 	//Synchronized Array list of out streams
-	private static List<ObjectOutputStream> out_streams_list = Collections.synchronizedList(out_streams);
+	public static List<ObjectOutputStream> out_streams_list = Collections.synchronizedList(out_streams);
 	
 	//returns the player id (or the Client ID) list
 	public synchronized static List<MazewarPacket> get_player_list() {
