@@ -453,6 +453,7 @@ public class Mazewar extends JFrame {
 						}
 						else
 						{
+							System.out.println("SVN TEST");
 							System.out.println("SHOULD NEVER BE HERE");
 						}
 					}
