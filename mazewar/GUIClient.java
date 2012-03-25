@@ -30,7 +30,7 @@ import java.io.*;
 public class GUIClient extends LocalClient implements KeyListener {
 
 	private ObjectOutputStream out;	
-	private ArrayList<ObjectOutputStream> stream_list = null;
+	private ArrayList<ObjectOutputStream> stream_list = new ArrayList<ObjectOutputStream>();
 
 	private ObjectInputStream in;
 	public int x_coordinate;
@@ -61,7 +61,9 @@ public class GUIClient extends LocalClient implements KeyListener {
 	
 	public void insert_streams(ArrayList<ObjectOutputStream> stream_list)
 	{
+		System.out.println("INSERTING STREAM");
 		this.stream_list = stream_list;
+		System.out.println("SUCCESSFUL");
 	}
 	
 	

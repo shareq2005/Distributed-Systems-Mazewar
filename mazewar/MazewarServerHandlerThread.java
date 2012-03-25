@@ -48,9 +48,8 @@ public class MazewarServerHandlerThread extends Thread {
 
 				if(packetFromClient.type == MazewarPacket.CLIENT_REGISTRATION) 
 				{	
-
-
 					synchronized(this) {
+						
 						//add the packet to the list
 						//assign a client identification number
 						player_list = PlayersQueue.get_player_list();
@@ -101,6 +100,7 @@ public class MazewarServerHandlerThread extends Thread {
 						PlayersQueue.set_player_list(player_list);
 
 					}
+					
 					//Wait for the number of players to get to 4
 					int number_of_players = 0;
 					Thread thread;
