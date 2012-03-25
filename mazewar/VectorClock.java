@@ -11,8 +11,11 @@ import java.lang.Boolean;
  */
 public class VectorClock extends HashMap<String, Integer> implements Serializable
 {
-	// Unique Serial.
-	private static final long serialVersionUID = 6668164199894268488L;
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Increases the component of pUnit by 1.
@@ -234,6 +237,39 @@ public class VectorClock extends HashMap<String, Integer> implements Serializabl
 	 */
 	public static Boolean ISIScompare(int sender_id, VectorClock pOne, VectorClock pTwo)
 	{
+		// we would have the sender's ID
+		Integer[] int_values1 = pOne.getOrderedValues();
+		Integer[] int_values2 = pTwo.getOrderedValues();
+		
+		int i = 0;
+		
+		// OK EXTRACTING WORKS fine
+		// NEED TO CHECK IF THE comparison works now
+		
+		if(int_values1[sender_id] != int_values2[sender_id]+1)
+		{
+			
+			return false;
+			// Queue it;
+		}
+		
+		for(i = 0; i< 3; i++ )
+		{
+			if(int_values1[i] > int_values2[i])
+			{	
+				if(i == sender_id)
+				{
+					System.out.println(" i is in continue "+i);
+					continue;
+				}
+				else
+				{
+					System.out.println(" OTHR VALS MISMATCH ");
+					return false;
+				}
+			}
+	    }
+		
 		return true;
 	}	
 }	
