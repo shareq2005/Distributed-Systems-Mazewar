@@ -367,15 +367,16 @@ public class Mazewar extends JFrame {
 		while(listening) {	
 			if (client_queue_list.size() > 0) 
 			{
-
 				int queue_traversal = 0;
 				queue_traversal = client_queue_list.size();
-
+				System.out.println("SIZE OF CLIENT QUEUE IS "+queue_traversal);
+				
 				int x;
-				for(x = 0; x <= queue_traversal ; x++) {
+				for(x = 0; x < queue_traversal ; x++) {
 
 					//extract an received element from the queue
 					MazewarPacket packet_from_queue;
+					System.out.println("X is "+x);
 					packet_from_queue = client_queue_list.get(x);
 
 					//Get the local Vector clock
@@ -423,9 +424,10 @@ public class Mazewar extends JFrame {
 							{
 								temp_guy.fire();
 							};
-
-							//remove the first element in the client queue
-							ClientQueue.remove_element(gui_client_id);
+							
+							
+							//remove the xth element in the client queue
+							ClientQueue.remove_element(gui_client_id,x);
 						}
 						else
 						{

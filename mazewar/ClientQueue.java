@@ -75,19 +75,19 @@ public class ClientQueue{
 
 	}
 	
-	public static void remove_element(int client_id) {
+	public static void remove_element(int client_id,int x) {
 
 		if(client_id == 0) {
-			client_queue_zero.remove(0);
+			client_queue_zero.remove(x);
 		}
 		else if(client_id == 1) {
-			client_queue_one.remove(0);
+			client_queue_one.remove(x);
 		}
 		else if(client_id == 2) {
-			client_queue_two.remove(0);
+			client_queue_two.remove(x);
 		}
 		else if(client_id == 3) {
-			client_queue_three.remove(0);
+			client_queue_three.remove(x);
 		};
 
 	}
