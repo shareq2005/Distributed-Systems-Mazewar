@@ -449,7 +449,7 @@ public class Mazewar extends JFrame {
 
 						//remove the xth element in the client queue
 						ClientQueue.remove_element(gui_client_id,x);
-
+						x = queue_traversal;
 					}
 				}
 			};
