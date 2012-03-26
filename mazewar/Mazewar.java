@@ -408,8 +408,9 @@ public class Mazewar extends JFrame {
 						System.out.println("COMPARE TRUE");
 
 						//Merge the vector clock
-						VectorClockList.merge_clock(gui_client_id, received_clock);
-
+						if(gui_client_id != packet_client_id) {
+							VectorClockList.merge_clock(gui_client_id, received_clock);
+						};
 
 						Client temp_guy = (Client) client_map.get(packet_client_id);
 
@@ -449,7 +450,7 @@ public class Mazewar extends JFrame {
 
 						//remove the xth element in the client queue
 						ClientQueue.remove_element(gui_client_id,x);
-						x = queue_traversal;
+
 					}
 				}
 			};
