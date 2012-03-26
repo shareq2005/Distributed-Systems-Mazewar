@@ -107,12 +107,30 @@ public class GUIClient extends LocalClient implements KeyListener {
 				//fire();
 			}
 			
+			int gui_client_id = getClientID();
+			
+			System.out.println("************[IN GUI CLIENT]GUI CLIENT ID IS "+gui_client_id);
+			
+			
 			//Increment the ISIS Vector time-stamp for the client
-			VectorClockList.increment_vector_clock(getClientID());
-			VectorClock temp_clock = VectorClockList.get_vector_clock(getClientID());
-
+			VectorClockList.increment_vector_clock(gui_client_id);
+			VectorClock temp_clock = VectorClockList.get_vector_clock(gui_client_id);
+			
 			//pass the vector clock to the Mazewar packet
 			packet_to_server.clock = temp_clock;
+			
+			Integer[] local_values = temp_clock.getOrderedValues();
+
+			System.out.println("GUI CLOCK VALUES");
+			System.out.println(local_values[0]);
+			System.out.println(local_values[1]);
+			System.out.println(local_values[2]);
+			System.out.println(local_values[3]);
+			
+			if(packet_to_server.clock == temp_clock)
+				System.out.println("CLOCK_EQUAL");
+			else
+				System.out.println("CLOCK_NOT_EQUAL");
 			
 			//write to each output stream for the array list 'stream_list'
 			try {

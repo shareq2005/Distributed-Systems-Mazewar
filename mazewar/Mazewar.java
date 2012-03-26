@@ -373,7 +373,7 @@ public class Mazewar extends JFrame {
 				System.out.println("SIZE OF CLIENT QUEUE IS "+queue_traversal);
 
 				int x;
-				for(x = 0; x < queue_traversal ; x++) {
+				for(x = 0; x < client_queue_list.size() ; x++) {
 
 					//extract an received element from the queue
 					MazewarPacket packet_from_queue;
@@ -387,7 +387,7 @@ public class Mazewar extends JFrame {
 
 					//get the client id 
 					int packet_client_id = packet_from_queue.client_id;
-
+					
 					Integer[] local_values = local_clock.getOrderedValues();
 					Integer[] received_values = received_clock.getOrderedValues();
 
@@ -444,11 +444,11 @@ public class Mazewar extends JFrame {
 							temp_guy.fire();
 						};
 
-
 						System.out.println("REMOVING XTH ELEMENT");
 
 						//remove the xth element in the client queue
 						ClientQueue.remove_element(gui_client_id,x);
+						x = queue_traversal;
 
 					}
 				}
