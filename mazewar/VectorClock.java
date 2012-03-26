@@ -235,10 +235,14 @@ public class VectorClock extends HashMap<String, Integer> implements Serializabl
 	 * @param pTwo - Second Clock being compared.
 	 * 
 	 */
-	public static Boolean ISIScompare(int sender_id, VectorClock pOne, VectorClock pTwo)
+	public static Boolean ISIScompare(int gui_client_id, int sender_id, VectorClock pOne, VectorClock pTwo)
 	{
 		System.out.println("SENDER's ID is "+sender_id);
-				
+		
+		if(gui_client_id == sender_id)
+			return true;
+		
+		
 		
 		// we would have the sender's ID
 		Integer[] int_values1 = pOne.getOrderedValues();

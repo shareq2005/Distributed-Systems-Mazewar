@@ -290,15 +290,15 @@ public class Mazewar extends JFrame {
 			e.printStackTrace();
 		}
 
-		
+
 		if(guiClient == null) System.out.println("GUI CLIENT IS NULL");
-		
+
 		//Now that the Array of outputstream is ready, pass it to the guiclient
 		guiClient.insert_streams(stream_list);
-		
+
 		//Initialize vector clocks
 		VectorClockList.intialize_vector_clocks(gui_client_id);
-		
+
 		// Create the panel that will display the maze.
 		overheadPanel = new OverheadMazePanel(maze, guiClient);
 		assert(overheadPanel != null);
@@ -371,7 +371,7 @@ public class Mazewar extends JFrame {
 				int queue_traversal = 0;
 				queue_traversal = client_queue_list.size();
 				System.out.println("SIZE OF CLIENT QUEUE IS "+queue_traversal);
-				
+
 				int x;
 				for(x = 0; x < queue_traversal ; x++) {
 
@@ -387,75 +387,69 @@ public class Mazewar extends JFrame {
 
 					//get the client id 
 					int packet_client_id = packet_from_queue.client_id;
-					
+
 					Integer[] local_values = local_clock.getOrderedValues();
 					Integer[] received_values = received_clock.getOrderedValues();
-					
+
 					System.out.println("LOCAL VALUES ARE");
 					System.out.println(local_values[0]);
 					System.out.println(local_values[1]);
 					System.out.println(local_values[2]);
 					System.out.println(local_values[3]);
-					
+
 					System.out.println("RECEIVED VALUES ARE");
 					System.out.println(received_values[0]);
 					System.out.println(received_values[1]);
 					System.out.println(received_values[2]);
 					System.out.println(received_values[3]);
-					
-					if(VectorClock.ISIScompare(packet_client_id,received_clock,local_clock) == true) {
-						
+
+					if(VectorClock.ISIScompare(gui_client_id,packet_client_id,received_clock,local_clock) == true) {
+
 						System.out.println("COMPARE TRUE");
-						
+
 						//Merge the vector clock
 						VectorClockList.merge_clock(gui_client_id, received_clock);
-						
-						if(packet_from_queue.type == MazewarPacket.CLIENT_PACKET) {
 
-							Client temp_guy = (Client) client_map.get(packet_client_id);
 
-							if(packet_from_queue.action == MazewarPacket.CLIENT_KILLED)
-							{
-								System.out.println("CLIENT KILLED PACKET RECEIVED");
+						Client temp_guy = (Client) client_map.get(packet_client_id);
 
-								if(packet_client_id != gui_client_id) {
-									System.out.println("packet_client_id is "+packet_client_id);
-									System.out.println("GUI CLIENT ID IS "+gui_client_id);
-									maze.respawn_remote_client(temp_guy, packet_from_queue.x_coordinate,packet_from_queue.y_coordinate);
-								};
-							}
-							else if(packet_from_queue.action == MazewarPacket.MOVE_UP)
-							{
-								temp_guy.forward();
-							}
-							else if(packet_from_queue.action == MazewarPacket.MOVE_DOWN)
-							{
-								temp_guy.backup();
-							}
-							else if(packet_from_queue.action == MazewarPacket.MOVE_LEFT)
-							{
-								temp_guy.turnLeft();
-							}
-							else if(packet_from_queue.action == MazewarPacket.MOVE_RIGHT)
-							{
-								temp_guy.turnRight();
-							}
-							else if(packet_from_queue.action == MazewarPacket.SPACE_FIRE)
-							{
-								temp_guy.fire();
-							};
-							
-							
-							System.out.println("REMOVING XTH ELEMENT");
-							
-							//remove the xth element in the client queue
-							ClientQueue.remove_element(gui_client_id,x);
-						}
-						else
+						if(packet_from_queue.action == MazewarPacket.CLIENT_KILLED)
 						{
-							System.out.println("SVN TEST");
-							System.out.println("SHOULD NEVER BE HERE");
+							System.out.println("CLIENT KILLED PACKET RECEIVED");
+
+							if(packet_client_id != gui_client_id) {
+								System.out.println("packet_client_id is "+packet_client_id);
+								System.out.println("GUI CLIENT ID IS "+gui_client_id);
+								maze.respawn_remote_client(temp_guy, packet_from_queue.x_coordinate,packet_from_queue.y_coordinate);
+							};
 						}
+						else if(packet_from_queue.action == MazewarPacket.MOVE_UP)
+						{
+							temp_guy.forward();
+						}
+						else if(packet_from_queue.action == MazewarPacket.MOVE_DOWN)
+						{
+							temp_guy.backup();
+						}
+						else if(packet_from_queue.action == MazewarPacket.MOVE_LEFT)
+						{
+							temp_guy.turnLeft();
+						}
+						else if(packet_from_queue.action == MazewarPacket.MOVE_RIGHT)
+						{
+							temp_guy.turnRight();
+						}
+						else if(packet_from_queue.action == MazewarPacket.SPACE_FIRE)
+						{
+							temp_guy.fire();
+						};
+
+
+						System.out.println("REMOVING XTH ELEMENT");
+
+						//remove the xth element in the client queue
+						ClientQueue.remove_element(gui_client_id,x);
+
 					}
 				}
 			};
