@@ -27,4 +27,5 @@ public class ServerQueue {
 
 	public static Lock lock_one;
 	public static Lock lock_two;
+	
 }

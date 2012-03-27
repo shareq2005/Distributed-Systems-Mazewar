@@ -13,6 +13,9 @@ public class MazewarPacket implements Serializable {
 	public static final int REMOTE_CLIENT_ACK = 700;
 	public static final int CLIENT_UPDATE = 900;
 	public static final int CLIENT_KILLED = 800;
+	public static final int SEQUENCE_REQUEST = 1000;
+	public static final int SEQUENCE_RETURN = 1100;
+	
 	/* All the potential actions */
 	public static final int QUIT = 301;
 	public static final int MOVE_UP = 302;
@@ -68,5 +71,7 @@ public class MazewarPacket implements Serializable {
 	
 	/* Hostname/IP of the client which will accept connections from other clients*/
 	public String client_host;
+	
+	public int sequence_number;
 
 }

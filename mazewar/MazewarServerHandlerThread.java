@@ -132,7 +132,6 @@ public class MazewarServerHandlerThread extends Thread {
 				}
 				else if(packetFromClient.type == MazewarPacket.CLIENT_PACKET)
 				{
-					sequence_Num++;
 					MazewarPacket packet_queue = new MazewarPacket();
 					packet_queue.type = MazewarPacket.SERVER_PACKET;
 					packet_queue.x_coordinate = packetFromClient.x_coordinate;
@@ -156,7 +155,24 @@ public class MazewarServerHandlerThread extends Thread {
 					}
 
 					continue;
-				};
+				}
+				else if(packetFromClient.type == MazewarPacket.SEQUENCE_REQUEST)
+				{
+					//send back a sequence number
+					MazewarPacket packet_queue = new MazewarPacket();
+					packet_queue.type = MazewarPacket.SEQUENCE_RETURN;
+					
+					//extract a sequence number
+					int sequence_number = SynchronizedCounter.grant_sequence();
+					
+					//pass in the sequence number
+					packet_queue.sequence_number = sequence_number;
+
+					//send back a sequence number to the client which requested it
+					ObjectOutputStream temp_stream = (PlayersQueue.out_streams_list).get(packet_queue.client_id);
+					temp_stream.writeObject(packet_queue);
+					
+				}
 
 
 				/* Sending an ECHO_NULL || ECHO_BYE means quit */
