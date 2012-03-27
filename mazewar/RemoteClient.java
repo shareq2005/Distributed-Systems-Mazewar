@@ -1,5 +1,5 @@
 import java.util.Random;
-
+import java.io.*;
 /*
 Copyright (C) 2004 Geoffrey Alan Washburn
    
@@ -38,7 +38,7 @@ public class RemoteClient extends Client implements Runnable{
      * @param name The name of this {@link RemoteClient}.
      */
     public RemoteClient(String name,int client_id) {
-            super(name,client_id);
+            super(name,client_id, out_to_server, in_from_server);
             assert(name != null);
             // Create our thread
             thread = new Thread(this);

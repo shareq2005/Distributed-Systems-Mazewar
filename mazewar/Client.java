@@ -17,6 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
 USA.
 */
   
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -68,6 +70,20 @@ public abstract class Client {
         		return client_id;
         }
         
+        /**
+         * @return the sequence number
+         * this is specifically used for sequence number
+         */
+        public int get_sequence_number() {
+        	return sequence_number;
+        }
+        
+        /**
+         * @param sequence_number - sets the sequence number
+         */
+        public void set_sequence_number(int sequence_number) {
+        	this.sequence_number = sequence_number;
+        }
         
       
         /**
@@ -131,13 +147,44 @@ public abstract class Client {
         //The Identification of the client, there can be duplicate names but no duplicate client IDs
         private int client_id = 0;
         
+        /**
+         * Sequence number used for sequencer scheme
+         */
+        public int sequence_number = 0;
+        
+        /**
+         * stream to server
+         */
+        public static ObjectOutputStream out_to_server = null;
+        
+        /**
+         * stream from server
+         */
+        public static ObjectInputStream in_from_server = null;
+        
+        /**
+         * @return the ObjectOutputStream to the server
+         */
+        public ObjectOutputStream get_output_stream() {
+        	return out_to_server;
+        }
+        
+        /**
+         * @return the ObjectInputStream from the server
+         */
+        public ObjectInputStream get_input_stream() {
+        	return in_from_server;
+        }
+        
         /** 
          * Create a new client with the specified name.
          */
-        protected Client(String name, int client_id) {
+        protected Client(String name, int client_id, ObjectOutputStream out_to_server, ObjectInputStream in_from_server) {
                 assert(name != null);
                 this.name = name;
                 this.client_id = client_id;
+                this.out_to_server = out_to_server;
+                this.in_from_server = in_from_server;
         }
 
         /**

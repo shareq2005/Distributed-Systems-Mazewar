@@ -242,8 +242,6 @@ public class VectorClock extends HashMap<String, Integer> implements Serializabl
 		if(gui_client_id == sender_id)
 			return true;
 		
-		
-		
 		// we would have the sender's ID
 		Integer[] int_values1 = pOne.getOrderedValues();
 		Integer[] int_values2 = pTwo.getOrderedValues();

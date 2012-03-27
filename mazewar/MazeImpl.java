@@ -529,26 +529,75 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 			notifyClientKilled(source, target);
 
 			System.out.println("BEFORE SYNCHRONIZED");
+			
+			//Request a sequence number from server
+			MazewarPacket seq_req_packet = new MazewarPacket();
+			seq_req_packet.type = MazewarPacket.SEQUENCE_REQUEST;
+			seq_req_packet.action = MazewarPacket.CLIENT_KILLED;
+			seq_req_packet.client_id = target.getClientID();
+			
+			//write to server
+			try {
+				ObjectOutputStream out_to_server= target.get_output_stream();
+				out_to_server.writeObject(seq_req_packet);
+			} catch (IOException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			
+			//now wait for response
+			MazewarPacket packet_from_server = new MazewarPacket();
+			MazewarPacket packet_to_clients = new MazewarPacket();
+			
+			try {
+				
+				ObjectInputStream in_from_server = target.get_input_stream();
+				
+				while(( packet_from_server = (MazewarPacket) in_from_server.readObject()) != null)
+				{
+					if(packet_from_server.type == MazewarPacket.SEQUENCE_RETURN)
+					{
+						int sequence_number = packet_from_server.sequence_number;
+
+						System.out.println("SEQUENCE RETURNED "+sequence_number);
+						
+						packet_to_clients.sequence_number = sequence_number;	//add the sequence number to the packet to clients
+						
+						break;	//break out of the loop after receiving the packet
+					}
+					else
+					{
+						System.out.println("SHOULD NEVER BE HERE");
+					}
+				}
+			} catch (IOException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			} catch (ClassNotFoundException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			
+
 
 			synchronized(ClientQueue.lock2) {
 				System.out.println("IN SYNCHRONIZED");
 
 				try {
-					MazewarPacket packet_to_server = new MazewarPacket();
-					packet_to_server.type = MazewarPacket.CLIENT_PACKET;
-					packet_to_server.action = MazewarPacket.CLIENT_KILLED;
-					packet_to_server.x_coordinate = point.getX();
-					packet_to_server.y_coordinate = point.getY();
-					packet_to_server.client_id = local_client_id;
+					packet_to_clients.type = MazewarPacket.CLIENT_PACKET;
+					packet_to_clients.action = MazewarPacket.CLIENT_KILLED;
+					packet_to_clients.x_coordinate = point.getX();
+					packet_to_clients.y_coordinate = point.getY();
+					packet_to_clients.client_id = local_client_id;
 					
 					int i = 0;
 					System.out.println("SENDING CLIENT KILLED PACKET");
 
 					for(i = 0; i < 4; i++)
 					{
-						packet_to_server.destination_clientID = i;
+						packet_to_clients.destination_clientID = i;
 						ObjectOutputStream temp = stream_list.get(i);
-						temp.writeObject(packet_to_server);
+						temp.writeObject(packet_to_clients);
 					}
 
 				} catch (IOException e) {

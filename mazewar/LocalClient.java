@@ -1,3 +1,5 @@
+import java.io.*;
+
 /*
 Copyright (C) 2004 Geoffrey Alan Washburn
     
@@ -34,8 +36,8 @@ public abstract class LocalClient extends Client {
          * Create a {@link Client} local to this machine.
          * @param name The name of this {@link Client}.
          */
-        public LocalClient(String name, int client_id) {
-                super(name,client_id);
+        public LocalClient(String name, int client_id, ObjectOutputStream out_to_server,ObjectInputStream in_from_server) {
+                super(name,client_id,out_to_server,in_from_server);
                 assert(name != null);
         }
 

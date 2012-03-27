@@ -41,7 +41,7 @@ public class GUIClient extends LocalClient implements KeyListener {
 	 */
 	public GUIClient(String name, int client_id, ObjectOutputStream out_to_server, ObjectInputStream in_from_server,int x, int y) 
 	{
-		super(name,client_id);
+		super(name,client_id,out_to_server,in_from_server);
 		out = out_to_server;
 		in  = in_from_server;
 		x_coordinate = x;

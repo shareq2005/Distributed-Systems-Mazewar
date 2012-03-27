@@ -52,7 +52,7 @@ public class RobotClient extends LocalClient implements Runnable {
          * @param name The name of this {@link RobotClient}.
          */
         public RobotClient(String name,int client_id) {
-                super(name,client_id);
+                super(name,client_id, out_to_server, in_from_server);
                 assert(name != null);
                 // Create our thread
                 thread = new Thread(this);

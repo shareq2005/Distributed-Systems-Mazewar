@@ -386,10 +386,12 @@ public class Mazewar extends JFrame {
 					System.out.println("local sequence number is "+sequence_number);
 					System.out.println("Sequence number returned is "+packet_from_queue.sequence_number);
 															
-					if(packet_from_queue.sequence_number == (sequence_number+1)) {
+					//check if the packet was received with the correct sequence number
+					if(packet_from_queue.sequence_number == ((guiClient.get_sequence_number())+1)) {
 						
 						//update the sequence number
 						sequence_number = packet_from_queue.sequence_number;
+						guiClient.set_sequence_number(sequence_number);
 						
 						//get the client id 
 						int packet_client_id = packet_from_queue.client_id;
@@ -469,6 +471,5 @@ public class Mazewar extends JFrame {
 
 		//Mazewar instance
 		new Mazewar(server_hostname,server_port,local_port,LocalIP);
-
 	}
 }
