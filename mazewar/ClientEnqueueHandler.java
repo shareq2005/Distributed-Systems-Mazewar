@@ -16,6 +16,8 @@ public class ClientEnqueueHandler extends Thread{
 	
 	public void run()
 	{
+		
+		
 		MazewarPacket packet_from_client;
 		
 		try {
@@ -24,6 +26,8 @@ public class ClientEnqueueHandler extends Thread{
 			
 			while(( packet_from_client = (MazewarPacket) in_from_client.readObject()) != null)
 			{
+					System.out.println("RECEIVED PACKET AT CLIENT ENQUEUE");
+				
 					//update the queue
 					ClientQueue.add_element(packet_from_client,packet_from_client.destination_clientID);
 			}

@@ -80,8 +80,12 @@ public class Mazewar extends JFrame {
 	 */
 	private OverheadMazePanel overheadPanel = null;
 
+	/**
+	 * The local client ID
+	 */
 	public int gui_client_id;
 
+	public int sequence_number = 0;
 	/**
 	 * The table the displays the scores.
 	 */
@@ -374,42 +378,21 @@ public class Mazewar extends JFrame {
 
 				int x;
 				for(x = 0; x < client_queue_list.size() ; x++) {
-
+					
 					//extract an received element from the queue
 					MazewarPacket packet_from_queue;
 					packet_from_queue = client_queue_list.get(x);
 
-					//Get the local Vector clock
-					VectorClock local_clock = VectorClockList.get_vector_clock(gui_client_id);
-
-					//Get the Vector time stamp in the packet
-					VectorClock received_clock = packet_from_queue.clock;
-
-					//get the client id 
-					int packet_client_id = packet_from_queue.client_id;
-					
-					Integer[] local_values = local_clock.getOrderedValues();
-					Integer[] received_values = received_clock.getOrderedValues();
-
-					System.out.println("LOCAL VALUES ARE");
-					System.out.println(local_values[0]);
-					System.out.println(local_values[1]);
-					System.out.println(local_values[2]);
-					System.out.println(local_values[3]);
-
-					System.out.println("RECEIVED VALUES ARE");
-					System.out.println(received_values[0]);
-					System.out.println(received_values[1]);
-					System.out.println(received_values[2]);
-					System.out.println(received_values[3]);
-
-					if(VectorClock.ISIScompare(gui_client_id,packet_client_id,received_clock,local_clock) == true) {
-
-						System.out.println("COMPARE TRUE");
-
-						//Merge the vector clock
-						VectorClockList.merge_clock(gui_client_id, received_clock);
-
+					System.out.println("local sequence number is "+sequence_number);
+					System.out.println("Sequence number returned is "+packet_from_queue.sequence_number);
+															
+					if(packet_from_queue.sequence_number == (sequence_number+1)) {
+						
+						//update the sequence number
+						sequence_number = packet_from_queue.sequence_number;
+						
+						//get the client id 
+						int packet_client_id = packet_from_queue.client_id;
 
 						Client temp_guy = (Client) client_map.get(packet_client_id);
 
@@ -448,8 +431,7 @@ public class Mazewar extends JFrame {
 
 						//remove the xth element in the client queue
 						ClientQueue.remove_element(gui_client_id,x);
-						x = client_queue_list.size();
-						
+						x = client_queue_list.size();	//exit the loop
 					}
 				}
 			};

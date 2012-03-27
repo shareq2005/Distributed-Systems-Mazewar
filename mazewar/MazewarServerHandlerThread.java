@@ -140,7 +140,6 @@ public class MazewarServerHandlerThread extends Thread {
 					packet_queue.client_id = packetFromClient.client_id;
 					packet_queue.client_name = packetFromClient.client_name;
 
-					packet_queue.sequence_Num = sequence_Num;
 					List<MazewarPacket> server_queue = ServerQueue.get_event_queue();
 
 					synchronized(ServerQueue.lock1) {
@@ -158,6 +157,8 @@ public class MazewarServerHandlerThread extends Thread {
 				}
 				else if(packetFromClient.type == MazewarPacket.SEQUENCE_REQUEST)
 				{
+					System.out.println("Sequence number requested");
+					
 					//send back a sequence number
 					MazewarPacket packet_queue = new MazewarPacket();
 					packet_queue.type = MazewarPacket.SEQUENCE_RETURN;
@@ -165,13 +166,20 @@ public class MazewarServerHandlerThread extends Thread {
 					//extract a sequence number
 					int sequence_number = SynchronizedCounter.grant_sequence();
 					
+					System.out.println("Returning sequence number "+sequence_number);
+					
 					//pass in the sequence number
 					packet_queue.sequence_number = sequence_number;
-
+					
+					packet_queue.client_id = packetFromClient.client_id;
+					
 					//send back a sequence number to the client which requested it
 					ObjectOutputStream temp_stream = (PlayersQueue.out_streams_list).get(packet_queue.client_id);
 					temp_stream.writeObject(packet_queue);
 					
+					System.out.println("sequence packet sent to "+packet_queue.client_id);
+					
+					continue;
 				}
 
 

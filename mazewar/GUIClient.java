@@ -73,12 +73,13 @@ public class GUIClient extends LocalClient implements KeyListener {
 	 */
 	public void keyPressed(KeyEvent e) {
 
-		MazewarPacket packet_to_server = new MazewarPacket();
-		packet_to_server.type = MazewarPacket.CLIENT_PACKET;
-		packet_to_server.client_id = getClientID();
-		packet_to_server.client_name = getName();
-		packet_to_server.x_coordinate = x_coordinate;
-		packet_to_server.y_coordinate = y_coordinate;
+		
+		MazewarPacket packet_to_clients = new MazewarPacket();
+		packet_to_clients.type = MazewarPacket.CLIENT_PACKET;
+		packet_to_clients.client_id = getClientID();
+		packet_to_clients.client_name = getName();
+		packet_to_clients.x_coordinate = x_coordinate;
+		packet_to_clients.y_coordinate = y_coordinate;
 
 
 		// If the user pressed Q, invoke the cleanup code and quit. 
@@ -86,60 +87,83 @@ public class GUIClient extends LocalClient implements KeyListener {
 			Mazewar.quit();
 			// Up-arrow moves forward.
 		} else if(e.getKeyCode() == KeyEvent.VK_UP) {
-			packet_to_server.action = MazewarPacket.MOVE_UP;     
+			packet_to_clients.action = MazewarPacket.MOVE_UP;     
 			//forward();
 			// Down-arrow moves backward.
 		} else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
-			packet_to_server.action = MazewarPacket.MOVE_DOWN;
+			packet_to_clients.action = MazewarPacket.MOVE_DOWN;
 			//backup();
 			// Left-arrow turns left.
 		} else if(e.getKeyCode() == KeyEvent.VK_LEFT) {
-			packet_to_server.action = MazewarPacket.MOVE_LEFT;
+			packet_to_clients.action = MazewarPacket.MOVE_LEFT;
 			//turnLeft();
 			// Right-arrow turns right.
 		} else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
-			packet_to_server.action = MazewarPacket.MOVE_RIGHT;
+			packet_to_clients.action = MazewarPacket.MOVE_RIGHT;
 			//turnRight();
 			// Spacebar fires.
 		} else if(e.getKeyCode() == KeyEvent.VK_SPACE) {
-			packet_to_server.action = MazewarPacket.SPACE_FIRE;
+			packet_to_clients.action = MazewarPacket.SPACE_FIRE;
 			//fire();
 		}
 
-		int gui_client_id = getClientID();
+		//Request a sequence number from server
+		MazewarPacket seq_req_packet = new MazewarPacket();
+		seq_req_packet.type = MazewarPacket.SEQUENCE_REQUEST;
+		seq_req_packet.client_id = getClientID();
+		
+		//write to server
+		try {
+			out.writeObject(seq_req_packet);
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 
-		System.out.println("************[IN GUI CLIENT]GUI CLIENT ID IS "+gui_client_id);
+		System.out.println("SEQUENCE REQUESTED AT GUI CLIENT "+getClientID());
+		
+	
+		//now wait for response
+		MazewarPacket packet_from_server = new MazewarPacket();
+		
+		try {
+			while(( packet_from_server = (MazewarPacket) in.readObject()) != null)
+			{
+				if(packet_from_server.type == MazewarPacket.SEQUENCE_RETURN)
+				{
+					int sequence_number = packet_from_server.sequence_number;
 
-
-		//Increment the ISIS Vector time-stamp for the client
-		VectorClockList.increment_vector_clock(gui_client_id);
-		VectorClock temp_clock = VectorClockList.get_vector_clock(gui_client_id);
-
-		//pass the vector clock to the Mazewar packet
-		packet_to_server.clock = temp_clock;
-
-		Integer[] local_values = temp_clock.getOrderedValues();
-
-		System.out.println("GUI CLOCK VALUES");
-		System.out.println(local_values[0]);
-		System.out.println(local_values[1]);
-		System.out.println(local_values[2]);
-		System.out.println(local_values[3]);
-
-		if(packet_to_server.clock == temp_clock)
-			System.out.println("CLOCK_EQUAL");
-		else
-			System.out.println("CLOCK_NOT_EQUAL");
-
+					System.out.println("SEQUENCE RETURNED "+sequence_number);
+					
+					packet_to_clients.sequence_number = sequence_number;
+					
+					break;
+				}
+				else
+				{
+					System.out.println("SHOULD NEVER BE HERE");
+				}
+			}
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (ClassNotFoundException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		
+		
 		synchronized(ClientQueue.lock2) {
 			//write to each output stream for the array list 'stream_list'
 			try {
 				int i = 0;
 				for(i = 0; i < 4; i++)
 				{	
-					packet_to_server.destination_clientID = i;
+					System.out.println("SENDING TO "+i);
+					
+					packet_to_clients.destination_clientID = i;
 					ObjectOutputStream temp = stream_list.get(i);
-					temp.writeObject(packet_to_server);
+					temp.writeObject(packet_to_clients);
 				}
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block

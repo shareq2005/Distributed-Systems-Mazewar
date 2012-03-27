@@ -24,12 +24,6 @@ public class MazewarPacket implements Serializable {
 	public static final int MOVE_RIGHT = 305;
 	public static final int SPACE_FIRE = 306;
 
-	/* trying to add sequence numbers as mentioned in the lab hand out */
-	public int sequence_Num = 0;
-	
-	public VectorClock temp;
-	public VectorClock clock;
-
 	/* initialized to be a null packet */
 	public int type = MAZEWAR_NULL;
 

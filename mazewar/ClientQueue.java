@@ -19,6 +19,7 @@ public class ClientQueue{
 	public static List<MazewarPacket> client_queue_three = Collections.synchronizedList(client_queue4);
 
 
+	public int sequence_number = 0;
 
 	//Make an array list for a list of the players, players must first register here
 	//for a client ID
