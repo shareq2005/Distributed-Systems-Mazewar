@@ -260,7 +260,7 @@ public class VectorClock extends HashMap<String, Integer> implements Serializabl
 			// Queue it;
 		}
 		
-		for(i = 0; i< 3; i++ )
+		for(i = 0; i < 4; i++ )
 		{
 			if(int_values1[i] > int_values2[i])
 			{	

@@ -46,27 +46,27 @@ public class GUIClient extends LocalClient implements KeyListener {
 		in  = in_from_server;
 		x_coordinate = x;
 		y_coordinate = y;
-		
+
 		stream_list = new ArrayList<ObjectOutputStream>();
 	}
-	
+
 	/**
 	 * Updates the coordinates?
-	*/
+	 */
 	public void update_coordinates(int x,int y)
 	{
-		 x_coordinate = x;
-		 y_coordinate = y;
+		x_coordinate = x;
+		y_coordinate = y;
 	}
-	
+
 	public void insert_streams(ArrayList<ObjectOutputStream> stream_list)
 	{
 		System.out.println("INSERTING STREAM");
 		this.stream_list = stream_list;
 		System.out.println("SUCCESSFUL");
 	}
-	
-	
+
+
 	/**
 	 * Handle a key press.
 	 * @param e The {@link KeyEvent} that occurred.
@@ -80,58 +80,58 @@ public class GUIClient extends LocalClient implements KeyListener {
 		packet_to_server.x_coordinate = x_coordinate;
 		packet_to_server.y_coordinate = y_coordinate;
 
+
+		// If the user pressed Q, invoke the cleanup code and quit. 
+		if((e.getKeyChar() == 'q') || (e.getKeyChar() == 'Q')) {
+			Mazewar.quit();
+			// Up-arrow moves forward.
+		} else if(e.getKeyCode() == KeyEvent.VK_UP) {
+			packet_to_server.action = MazewarPacket.MOVE_UP;     
+			//forward();
+			// Down-arrow moves backward.
+		} else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
+			packet_to_server.action = MazewarPacket.MOVE_DOWN;
+			//backup();
+			// Left-arrow turns left.
+		} else if(e.getKeyCode() == KeyEvent.VK_LEFT) {
+			packet_to_server.action = MazewarPacket.MOVE_LEFT;
+			//turnLeft();
+			// Right-arrow turns right.
+		} else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
+			packet_to_server.action = MazewarPacket.MOVE_RIGHT;
+			//turnRight();
+			// Spacebar fires.
+		} else if(e.getKeyCode() == KeyEvent.VK_SPACE) {
+			packet_to_server.action = MazewarPacket.SPACE_FIRE;
+			//fire();
+		}
+
+		int gui_client_id = getClientID();
+
+		System.out.println("************[IN GUI CLIENT]GUI CLIENT ID IS "+gui_client_id);
+
+
+		//Increment the ISIS Vector time-stamp for the client
+		VectorClockList.increment_vector_clock(gui_client_id);
+		VectorClock temp_clock = VectorClockList.get_vector_clock(gui_client_id);
+
+		//pass the vector clock to the Mazewar packet
+		packet_to_server.clock = temp_clock;
+
+		Integer[] local_values = temp_clock.getOrderedValues();
+
+		System.out.println("GUI CLOCK VALUES");
+		System.out.println(local_values[0]);
+		System.out.println(local_values[1]);
+		System.out.println(local_values[2]);
+		System.out.println(local_values[3]);
+
+		if(packet_to_server.clock == temp_clock)
+			System.out.println("CLOCK_EQUAL");
+		else
+			System.out.println("CLOCK_NOT_EQUAL");
+
 		synchronized(ClientQueue.lock2) {
-
-			// If the user pressed Q, invoke the cleanup code and quit. 
-			if((e.getKeyChar() == 'q') || (e.getKeyChar() == 'Q')) {
-				Mazewar.quit();
-				// Up-arrow moves forward.
-			} else if(e.getKeyCode() == KeyEvent.VK_UP) {
-				packet_to_server.action = MazewarPacket.MOVE_UP;     
-				//forward();
-				// Down-arrow moves backward.
-			} else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
-				packet_to_server.action = MazewarPacket.MOVE_DOWN;
-				//backup();
-				// Left-arrow turns left.
-			} else if(e.getKeyCode() == KeyEvent.VK_LEFT) {
-				packet_to_server.action = MazewarPacket.MOVE_LEFT;
-				//turnLeft();
-				// Right-arrow turns right.
-			} else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
-				packet_to_server.action = MazewarPacket.MOVE_RIGHT;
-				//turnRight();
-				// Spacebar fires.
-			} else if(e.getKeyCode() == KeyEvent.VK_SPACE) {
-				packet_to_server.action = MazewarPacket.SPACE_FIRE;
-				//fire();
-			}
-			
-			int gui_client_id = getClientID();
-			
-			System.out.println("************[IN GUI CLIENT]GUI CLIENT ID IS "+gui_client_id);
-			
-			
-			//Increment the ISIS Vector time-stamp for the client
-			VectorClockList.increment_vector_clock(gui_client_id);
-			VectorClock temp_clock = VectorClockList.get_vector_clock(gui_client_id);
-			
-			//pass the vector clock to the Mazewar packet
-			packet_to_server.clock = temp_clock;
-			
-			Integer[] local_values = temp_clock.getOrderedValues();
-
-			System.out.println("GUI CLOCK VALUES");
-			System.out.println(local_values[0]);
-			System.out.println(local_values[1]);
-			System.out.println(local_values[2]);
-			System.out.println(local_values[3]);
-			
-			if(packet_to_server.clock == temp_clock)
-				System.out.println("CLOCK_EQUAL");
-			else
-				System.out.println("CLOCK_NOT_EQUAL");
-			
 			//write to each output stream for the array list 'stream_list'
 			try {
 				int i = 0;

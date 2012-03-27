@@ -368,9 +368,9 @@ public class Mazewar extends JFrame {
 		while(listening) {	
 			if (client_queue_list.size() > 0) 
 			{
-				int queue_traversal = 0;
-				queue_traversal = client_queue_list.size();
-				System.out.println("SIZE OF CLIENT QUEUE IS "+queue_traversal);
+				//int queue_traversal = 0;
+				//queue_traversal = client_queue_list.size();
+				//System.out.println("SIZE OF CLIENT QUEUE IS "+queue_traversal);
 
 				int x;
 				for(x = 0; x < client_queue_list.size() ; x++) {
@@ -448,7 +448,7 @@ public class Mazewar extends JFrame {
 
 						//remove the xth element in the client queue
 						ClientQueue.remove_element(gui_client_id,x);
-						x = queue_traversal;
+						x = client_queue_list.size();
 
 					}
 				}
