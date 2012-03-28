@@ -382,19 +382,20 @@ public class Mazewar extends JFrame {
 					MazewarPacket packet_from_queue;
 					packet_from_queue = client_queue_list.get(x);
 
-					System.out.println("local sequence number is "+guiClient.get_sequence_number());
+					System.out.println("local sequence number is "+ClientQueue.get_sequence(gui_client_id));
 					System.out.println("Sequence number returned is "+packet_from_queue.sequence_number);
+					System.out.println("Sender is "+packet_from_queue.client_id);
 															
 					//check if the packet was received with the correct sequence number
-					if(packet_from_queue.sequence_number == ((guiClient.get_sequence_number())+1)) {
+					if(packet_from_queue.sequence_number == (ClientQueue.get_sequence(gui_client_id)+1)) {
 						
 						//update the sequence number
-						
 						System.out.println("PACKET FROM QUEUE SEQ NUMBER IS "+packet_from_queue.sequence_number);
-						System.out.println("CURRENT_SEQUENCE NUMBER IS "+guiClient.get_sequence_number());
+						System.out.println("CURRENT_SEQUENCE NUMBER IS "+(ClientQueue.get_sequence(gui_client_id)));
 						
 						int sequence_number = packet_from_queue.sequence_number;
-						guiClient.set_sequence_number(sequence_number);
+						//guiClient.set_sequence_number(sequence_number);
+						ClientQueue.update_sequence(gui_client_id, sequence_number);
 						
 						//get the client id 
 						int packet_client_id = packet_from_queue.client_id;

@@ -18,6 +18,11 @@ public class ClientQueue{
 	public static List<MazewarPacket> client_queue_two = Collections.synchronizedList(client_queue3);
 	public static List<MazewarPacket> client_queue_three = Collections.synchronizedList(client_queue4);
 
+	public static int seq_c0;
+	public static int seq_c1;
+	public static int seq_c2;
+	public static int seq_c3;
+	
 
 	public int sequence_number = 0;
 
@@ -44,9 +49,47 @@ public class ClientQueue{
 		return null;
 
 	}
+	
+	public static synchronized int get_sequence(int client_id) 
+	{
+		if(client_id == 0)
+			return seq_c0;
+		else if(client_id == 1)
+			return seq_c1;
+		else if(client_id == 2)
+			return seq_c2;
+		else if(client_id == 3)
+			return seq_c2;
+		
+		return -1;
+	}
 
+	public static synchronized void update_sequence(int client_id,int seq)
+	{
+		if(client_id == 0)
+			seq_c0 = seq;
+		else if(client_id == 1)
+			seq_c1 = seq;
+		else if(client_id == 2)
+			seq_c2 = seq;
+		else if(client_id == 3)
+			seq_c2 = seq;
+	}
+	
+	public static synchronized void increment_sequence(int client_id)
+	{
+		if(client_id == 0)
+			seq_c0++;
+		else if(client_id == 1)
+			seq_c1++;
+		else if(client_id == 2)
+			seq_c2++;
+		else if(client_id == 3)
+			seq_c2++;
+	}
+	
 	//sets the events
-	public static void set_event_queue(List<MazewarPacket> queue, int client_id) {
+	public static synchronized void set_event_queue(List<MazewarPacket> queue, int client_id) {
 
 		if(client_id == 0)
 			client_queue_zero = queue;
@@ -59,7 +102,7 @@ public class ClientQueue{
 
 	}	
 
-	public static void add_element(MazewarPacket packet, int client_id) {
+	public static synchronized void add_element(MazewarPacket packet, int client_id) {
 
 		if(client_id == 0) {
 			client_queue_zero.add(packet);
@@ -76,7 +119,7 @@ public class ClientQueue{
 
 	}
 	
-	public static void remove_element(int client_id,int x) {
+	public static synchronized void remove_element(int client_id,int x) {
 
 		if(client_id == 0) {
 			client_queue_zero.remove(x);

@@ -109,7 +109,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 	 * @return A reconstituted {@link MazeImpl}. 
 	 */
 	public static Maze readMazeFile(String mazefile)
-			throws IOException, ClassNotFoundException {
+	throws IOException, ClassNotFoundException {
 		assert(mazefile != null);
 		FileInputStream in = new FileInputStream(mazefile);
 		ObjectInputStream s = new ObjectInputStream(in);
@@ -123,7 +123,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 	 * @param mazefile The filename to write the serialized object to.
 	 * */
 	public void save(String mazefile)
-			throws IOException {
+	throws IOException {
 		assert(mazefile != null);
 		FileOutputStream out = new FileOutputStream(mazefile);
 		ObjectOutputStream s = new ObjectOutputStream(out);
@@ -205,7 +205,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 	public boolean checkBounds(Point point) {
 		assert(point != null);
 		return (point.getX() >= 0) && (point.getY() >= 0) && 
-				(point.getX() < maxX) && (point.getY() < maxY);
+		(point.getX() < maxX) && (point.getY() < maxY);
 	}
 
 	public Point getSize() {
@@ -479,45 +479,17 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 		assert(source != null);
 		assert(target != null);
 
-		//get instance of local client
-		Iterator i = getClients(); // ASSUMING THIS IS THE ITERATOR THRU THE CLIENT KEY SET;
-		
-		Client gui_client = null;
-		while(i.hasNext())
-		{ 
-			Object obj = i.next();
-			assert(obj instanceof Client);
-			gui_client = (Client)obj;
-			
-			System.out.println("CLIENT ID IS "+gui_client.getClientID());
-			
-			if(gui_client.getClientID() == local_client_id)
-			{
-				System.out.println("LOCAL CLIENT FOUND");
-	
-				break;
-			};
-		}
-		
-		//get the current local sequence number and increment it once (refer to design doc)
-		int cur_seq_no = gui_client.get_sequence_number();
-		
-		System.out.println("CURRENT SEQUENCE NUMBER IS "+cur_seq_no);
-		cur_seq_no++;	//increment it
-		
-		gui_client.set_sequence_number(cur_seq_no);
-		
 		Mazewar.consolePrintLn(source.getName() + " just vaporized " + target.getName());
 		Object o = clientMap.remove(target);
 		assert(o instanceof Point);
 		Point point = (Point)o;
 		CellImpl cell = getCellImpl(point);
 		cell.setContents(null);
-		
+
+		ClientQueue.increment_sequence(local_client_id);
+
 		System.out.println("IN KILL CLIENT, LOCAL CLIENT IS "+local_client_id);
-		
-	
-		
+
 		//check if local client was killed 
 		if(target.getClientID() == local_client_id) {
 
@@ -546,21 +518,19 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 			cell.setContents(target);
 
 			clientMap.put(target, new DirectedPoint(point, d));
-			
-			target.set_sequence_number(cur_seq_no);
-			
+
 			update();
 
 			notifyClientKilled(source, target);
 
 			System.out.println("BEFORE SYNCHRONIZED");
-			
+
 			//Request a sequence number from server
 			MazewarPacket seq_req_packet = new MazewarPacket();
 			seq_req_packet.type = MazewarPacket.SEQUENCE_REQUEST;
 			seq_req_packet.action = MazewarPacket.CLIENT_KILLED;
 			seq_req_packet.client_id = target.getClientID();
-			
+
 			//write to server
 			try {
 				ObjectOutputStream out_to_server= target.get_output_stream();
@@ -569,44 +539,42 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			}
-			
+
 			//now wait for response
 			MazewarPacket packet_from_server = new MazewarPacket();
 			MazewarPacket packet_to_clients = new MazewarPacket();
-			
-			try {
-				
-				ObjectInputStream in_from_server = target.get_input_stream();
-				
-				while(( packet_from_server = (MazewarPacket) in_from_server.readObject()) != null)
-				{
-					if(packet_from_server.type == MazewarPacket.SEQUENCE_RETURN)
-					{
-						int sequence_number = packet_from_server.sequence_number;
-
-						System.out.println("SEQUENCE RETURNED "+sequence_number);
-						
-						packet_to_clients.sequence_number = sequence_number;	//add the sequence number to the packet to clients
-						
-						break;	//break out of the loop after receiving the packet
-					}
-					else
-					{
-						System.out.println("SHOULD NEVER BE HERE");
-					}
-				}
-			} catch (IOException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			} catch (ClassNotFoundException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
-			
-
 
 			synchronized(ClientQueue.lock2) {
 				System.out.println("IN SYNCHRONIZED");
+
+				try {
+
+					ObjectInputStream in_from_server = target.get_input_stream();
+
+					while(( packet_from_server = (MazewarPacket) in_from_server.readObject()) != null)
+					{
+						if(packet_from_server.type == MazewarPacket.SEQUENCE_RETURN)
+						{
+							int sequence_number = packet_from_server.sequence_number;
+
+							System.out.println("SEQUENCE RETURNED "+sequence_number);
+
+							packet_to_clients.sequence_number = sequence_number;	//add the sequence number to the packet to clients
+
+							break;	//break out of the loop after receiving the packet
+						}
+						else
+						{
+							System.out.println("SHOULD NEVER BE HERE");
+						}
+					}
+				} catch (IOException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				} catch (ClassNotFoundException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
 
 				try {
 					packet_to_clients.type = MazewarPacket.CLIENT_PACKET;
@@ -614,7 +582,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 					packet_to_clients.x_coordinate = point.getX();
 					packet_to_clients.y_coordinate = point.getY();
 					packet_to_clients.client_id = local_client_id;
-					
+
 					int i1 = 0;
 					System.out.println("SENDING CLIENT KILLED PACKET");
 
@@ -634,7 +602,7 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 		else 
 		{
 			update();
-			//notifyClientKilled(source, target);
+			notifyClientKilled(source, target);
 		}
 	}
 

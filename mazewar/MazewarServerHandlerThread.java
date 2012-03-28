@@ -170,7 +170,7 @@ public class MazewarServerHandlerThread extends Thread {
 						sequence_number = SynchronizedCounter.grant_sequence();
 						
 						System.out.println("SEQUENCE NUMBER IS "+sequence_number);
-						System.out.println("ACTION IS "+packet_queue.action);
+						System.out.println("ACTION IS "+packetFromClient.action);
 						
 						if(packetFromClient.action == MazewarPacket.CLIENT_KILLED)
 						{
@@ -182,19 +182,21 @@ public class MazewarServerHandlerThread extends Thread {
 						
 						System.out.println("Returning sequence number "+sequence_number);
 
+						//pass in the sequence number
+						packet_queue.sequence_number = sequence_number;
+
+						packet_queue.client_id = packetFromClient.client_id;
+
+						//send back a sequence number to the client which requested it
+						ObjectOutputStream temp_stream = (PlayersQueue.out_streams_list).get(packet_queue.client_id);
+						temp_stream.writeObject(packet_queue);
+
+						System.out.println("sequence packet sent to "+packet_queue.client_id);
+
+						continue;
+					
 					}
-					//pass in the sequence number
-					packet_queue.sequence_number = sequence_number;
 
-					packet_queue.client_id = packetFromClient.client_id;
-
-					//send back a sequence number to the client which requested it
-					ObjectOutputStream temp_stream = (PlayersQueue.out_streams_list).get(packet_queue.client_id);
-					temp_stream.writeObject(packet_queue);
-
-					System.out.println("sequence packet sent to "+packet_queue.client_id);
-
-					continue;
 				}
 
 
