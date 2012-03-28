@@ -119,7 +119,7 @@ public class MazewarServerHandlerThread extends Thread {
 										info_packet.type = MazewarPacket.GUI_CLIENT_ACK;
 									else
 										info_packet.type = MazewarPacket.REMOTE_CLIENT_ACK;
-									
+
 									ObjectOutputStream temp_stream = (PlayersQueue.out_streams_list).get(j);
 									temp_stream.writeObject(info_packet);
 								}
@@ -158,27 +158,42 @@ public class MazewarServerHandlerThread extends Thread {
 				else if(packetFromClient.type == MazewarPacket.SEQUENCE_REQUEST)
 				{
 					System.out.println("Sequence number requested");
-					
+
 					//send back a sequence number
 					MazewarPacket packet_queue = new MazewarPacket();
 					packet_queue.type = MazewarPacket.SEQUENCE_RETURN;
-					
-					//extract a sequence number
-					int sequence_number = SynchronizedCounter.grant_sequence();
-					
-					System.out.println("Returning sequence number "+sequence_number);
-					
+
+					int sequence_number;
+					synchronized(this) {
+
+						//extract a sequence number
+						sequence_number = SynchronizedCounter.grant_sequence();
+						
+						System.out.println("SEQUENCE NUMBER IS "+sequence_number);
+						System.out.println("ACTION IS "+packet_queue.action);
+						
+						if(packetFromClient.action == MazewarPacket.CLIENT_KILLED)
+						{
+							//Increase the sequence number again
+							sequence_number = SynchronizedCounter.grant_sequence();
+							System.out.println("SEQUENCE NUMBER IN CLIENT KILLED IS "+sequence_number);
+							
+						};
+						
+						System.out.println("Returning sequence number "+sequence_number);
+
+					}
 					//pass in the sequence number
 					packet_queue.sequence_number = sequence_number;
-					
+
 					packet_queue.client_id = packetFromClient.client_id;
-					
+
 					//send back a sequence number to the client which requested it
 					ObjectOutputStream temp_stream = (PlayersQueue.out_streams_list).get(packet_queue.client_id);
 					temp_stream.writeObject(packet_queue);
-					
+
 					System.out.println("sequence packet sent to "+packet_queue.client_id);
-					
+
 					continue;
 				}
 

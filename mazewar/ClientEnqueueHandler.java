@@ -17,7 +17,6 @@ public class ClientEnqueueHandler extends Thread{
 	public void run()
 	{
 		
-		
 		MazewarPacket packet_from_client;
 		
 		try {

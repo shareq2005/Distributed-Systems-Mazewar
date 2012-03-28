@@ -479,6 +479,34 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 		assert(source != null);
 		assert(target != null);
 
+		//get instance of local client
+		Iterator i = getClients(); // ASSUMING THIS IS THE ITERATOR THRU THE CLIENT KEY SET;
+		
+		Client gui_client = null;
+		while(i.hasNext())
+		{ 
+			Object obj = i.next();
+			assert(obj instanceof Client);
+			gui_client = (Client)obj;
+			
+			System.out.println("CLIENT ID IS "+gui_client.getClientID());
+			
+			if(gui_client.getClientID() == local_client_id)
+			{
+				System.out.println("LOCAL CLIENT FOUND");
+	
+				break;
+			};
+		}
+		
+		//get the current local sequence number and increment it once (refer to design doc)
+		int cur_seq_no = gui_client.get_sequence_number();
+		
+		System.out.println("CURRENT SEQUENCE NUMBER IS "+cur_seq_no);
+		cur_seq_no++;	//increment it
+		
+		gui_client.set_sequence_number(cur_seq_no);
+		
 		Mazewar.consolePrintLn(source.getName() + " just vaporized " + target.getName());
 		Object o = clientMap.remove(target);
 		assert(o instanceof Point);
@@ -486,14 +514,9 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 		CellImpl cell = getCellImpl(point);
 		cell.setContents(null);
 		
-		//increment the local clock at the target's index
-		VectorClock local_clock = VectorClockList.get_vector_clock(local_client_id);
-		int target_client_id = target.getClientID();
-		String string_cid = Integer.toString(target_client_id);
-		local_clock.incrementClock(string_cid);
-		VectorClockList.update_clock(local_client_id, local_clock);
-		
 		System.out.println("IN KILL CLIENT, LOCAL CLIENT IS "+local_client_id);
+		
+	
 		
 		//check if local client was killed 
 		if(target.getClientID() == local_client_id) {
@@ -523,7 +546,9 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 			cell.setContents(target);
 
 			clientMap.put(target, new DirectedPoint(point, d));
-
+			
+			target.set_sequence_number(cur_seq_no);
+			
 			update();
 
 			notifyClientKilled(source, target);
@@ -590,13 +615,13 @@ public class MazeImpl extends Maze implements Serializable, ClientListener, Runn
 					packet_to_clients.y_coordinate = point.getY();
 					packet_to_clients.client_id = local_client_id;
 					
-					int i = 0;
+					int i1 = 0;
 					System.out.println("SENDING CLIENT KILLED PACKET");
 
-					for(i = 0; i < 4; i++)
+					for(i1 = 0; i1 < 4; i1++)
 					{
-						packet_to_clients.destination_clientID = i;
-						ObjectOutputStream temp = stream_list.get(i);
+						packet_to_clients.destination_clientID = i1;
+						ObjectOutputStream temp = stream_list.get(i1);
 						temp.writeObject(packet_to_clients);
 					}
 

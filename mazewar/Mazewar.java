@@ -85,7 +85,6 @@ public class Mazewar extends JFrame {
 	 */
 	public int gui_client_id;
 
-	public int sequence_number = 0;
 	/**
 	 * The table the displays the scores.
 	 */
@@ -383,14 +382,18 @@ public class Mazewar extends JFrame {
 					MazewarPacket packet_from_queue;
 					packet_from_queue = client_queue_list.get(x);
 
-					System.out.println("local sequence number is "+sequence_number);
+					System.out.println("local sequence number is "+guiClient.get_sequence_number());
 					System.out.println("Sequence number returned is "+packet_from_queue.sequence_number);
 															
 					//check if the packet was received with the correct sequence number
 					if(packet_from_queue.sequence_number == ((guiClient.get_sequence_number())+1)) {
 						
 						//update the sequence number
-						sequence_number = packet_from_queue.sequence_number;
+						
+						System.out.println("PACKET FROM QUEUE SEQ NUMBER IS "+packet_from_queue.sequence_number);
+						System.out.println("CURRENT_SEQUENCE NUMBER IS "+guiClient.get_sequence_number());
+						
+						int sequence_number = packet_from_queue.sequence_number;
 						guiClient.set_sequence_number(sequence_number);
 						
 						//get the client id 
